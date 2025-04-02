@@ -15,8 +15,12 @@ add_link_options(-L${LINKER_DIR} -L${LINKER_DIR}/${TARGET_LINKER_DIR})
 set(STM32_DRIVER_DIR targets/common/arm/stm32)
 include_directories(${STM32_DRIVER_DIR})
 
+set(TINYUSB ${THIRDPARTY_DIR}/TinyUSB/) # Root of TinyUSB
+set(TINYUSB_DIR ${THIRDPARTY_DIR}/TinyUSB/src) # Folder with the src files
+include_directories(${TINYUSB_DIR})
+
 if(NOT NATIVE_BUILD)
-  
+
   # STM32 USB Device library
   set(STM32USB_DIR ${THIRDPARTY_DIR}/STM32_USB_Device_Library)
 
@@ -119,7 +123,34 @@ if(NOT NATIVE_BUILD)
 
   set(BOOTLOADER_SRC ${BOOTLOADER_SRC} $<TARGET_OBJECTS:stm32_drivers>)
   set(BOOTLOADER_SRC ${BOOTLOADER_SRC} $<TARGET_OBJECTS:stm32_drivers_w_dbg_bl>)
-endif()
+
+
+  # TinyUSB files
+  add_library(TinyUSB OBJECT EXCLUDE_FROM_ALL
+  ${TINYUSB_DIR}/tusb.c
+  ${TINYUSB_DIR}/class/cdc/cdc_device.c    # for serial
+  ${TINYUSB_DIR}/class/dfu/dfu_device.c    # for updating (never used it before)
+  ${TINYUSB_DIR}/class/dfu/dfu_rt_device.c # for runtime DFU 
+  ${TINYUSB_DIR}/class/hid/hid_device.c    # for joystick 
+  ${TINYUSB_DIR}/class/msc/msc_device.c    # for oversized usb stick
+  )
+
+  target_include_directories(TinyUSB PRIVATE
+  ${TINYUSB_DIR}           # need tusb_options.h, tusb.h from here 
+  ${TINYUSB_DIR}/class/cdc # need   cdc_device.h,  cdc.h from here 
+  ${TINYUSB_DIR}/class/dfu # need   dfu_device.h,  dfu.h from here (idk about the runtime version) 
+  ${TINYUSB_DIR}/class/hid # need   hid_device.h,  hid.h from here 
+  ${TINYUSB_DIR}/class/msc # need   msc_device.h,  msc.h from here 
+  ${TINYUSB_DIR}/common/   # needed for commonm files  
+  )
+
+  set(FIRMWARE_SRC ${FIRMWARE_SRC} $<TARGET_OBJECTS:TinyUSB>)
+  set(BOOTLOADER_SRC ${BOOTLOADER_SRC} $<TARGET_OBJECTS:TinyUSB>)
+
+  string(SUBSTRING "${BSP_FAMILY}" 0 7 BSP_FAMILY) # keep fitrst 7 character (stm32xx)
+  add_compile_definitions(CFG_TUSB_MCU OPT_MCU_${BSP_FAMILY})
+
+  endif()
 
 if(IMU)
   add_definitions(-DIMU)

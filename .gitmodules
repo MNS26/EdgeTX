@@ -19,3 +19,6 @@
 	path = radio/src/thirdparty/uf2
 	url = https://github.com/microsoft/uf2.git
 	shallow = true
+[submodule "radio/src/thirdparty/TinyUSB"]
+	path = radio/src/thirdparty/TinyUSB
+	url = https://github.com/hathach/tinyusb
