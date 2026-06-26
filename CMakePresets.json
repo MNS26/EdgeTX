@@ -64,6 +64,27 @@
         "FLIGHT_MODES": "ON",
         "GVARS": "ON"
       }
+    },
+    {
+      "name": "simu-pi",
+      "displayName": "Simulator TX16S (Debug)",
+      "inherits": "simu",
+      "cacheVariables": {
+        "PCB": "X10",
+        "PCBREV": "PI",
+        "CMAKE_BUILD_TYPE": "Release",
+        "CMAKE_TLS_VERIFY": "OFF",
+        "DISABLE_COMPANION": "ON",
+        "AUDIO": "ON",
+        "LUA": "ON",
+        "LUA_MIXER": "ON",
+        "LUA_COMPILER": "ON",
+        "AUTOSOURCE": "ON",
+        "AUTOSWITCH": "ON",
+        "CURVES": "ON",
+        "FLIGHT_MODES": "ON",
+        "GVARS": "ON"
+      }
     }
   ],
   "buildPresets": [
@@ -101,6 +122,11 @@
     },
     {
       "name": "simu-tx16s",
+      "configurePreset": "simu-tx16s",
+      "targets": ["simu"]
+    },
+    {
+      "name": "simu-pi",
       "configurePreset": "simu-tx16s",
       "targets": ["simu"]
     }

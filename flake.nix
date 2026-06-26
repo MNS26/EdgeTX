@@ -250,8 +250,6 @@
           { 
             pcb ? "X10",
             pcbrev ? "TX16S",
-            #pcb ? "TX16SSIM",
-            #pcbrev ? "",
             buildType ? "Release",
             autosource ? "ON",
             autoswitch ? "ON",
@@ -336,18 +334,34 @@
             SSL_CERT_FILE = "${pkgs.cacert}/etc/ssl/certs/ca-bundle.crt";
 
             NIX_SYSTEM_INCLUDE_DIRS = with pkgs; lib.concatStringsSep ":" [
-              "${glibc.dev}/include"
               "${stdenv.cc.cc}/include/c++/${stdenv.cc.cc.version}"
               "${stdenv.cc.cc}/include/c++/${stdenv.cc.cc.version}/${stdenv.targetPlatform.config}"
               "${stdenv.cc.cc}/lib/gcc/${stdenv.targetPlatform.config}/${stdenv.cc.cc.version}/include"
+              "${glibc.dev}/include"
             ];
 
             postPatch = ''
               ${pkgs.python3}/bin/python3 -c "
               import os, sys
+
+              # patch generate_datacopy.py
               path = 'radio/util/generate_datacopy.py'
               old = '    if find_clang.builtin_hdr_path:\n        args.append(\"-I\" + find_clang.builtin_hdr_path)'
               new = '    if find_clang.builtin_hdr_path:\n        args.append(\"-I\" + find_clang.builtin_hdr_path)\n    _nix_dirs = os.environ.get(\"NIX_SYSTEM_INCLUDE_DIRS\", \"\")\n    if _nix_dirs:\n        for _d in _nix_dirs.split(\":\"):\n            if os.path.isdir(_d):\n                args.append(\"-idirafter\")\n                args.append(_d)'
+              with open(path) as f:
+                  c = f.read()
+              if old not in c:
+                  print('ERROR: pattern not found in ' + path)
+                  print(repr(old))
+                  sys.exit(1)
+              c = c.replace(old, new)
+              with open(path, 'w') as f:
+                  f.write(c)
+
+              # patch generate_yaml.py (different indentation)
+              path = 'radio/util/generate_yaml.py'
+              old = 'if find_clang.builtin_hdr_path:\n    args.append(\"-I\" + find_clang.builtin_hdr_path)'
+              new = 'if find_clang.builtin_hdr_path:\n    args.append(\"-I\" + find_clang.builtin_hdr_path)\n_nix_dirs = os.environ.get(\"NIX_SYSTEM_INCLUDE_DIRS\", \"\")\nif _nix_dirs:\n    for _d in _nix_dirs.split(\":\"):\n        if os.path.isdir(_d):\n            args.append(\"-idirafter\")\n            args.append(_d)'
               with open(path) as f:
                   c = f.read()
               if old not in c:
@@ -486,6 +500,14 @@
 
           edgetx-simu = mkSimu { };
 
+          edgetx-simu-tx16ssim = mkSimu {
+            pcbrev = "TX16S_SIM";
+          };
+
+          edgetx-simu-pi = mkSimu {
+            pcb = "PI";
+          };
+
           edgetx-companion = mkCompanion { };
 
         }
@@ -503,7 +525,7 @@
                 (final: prev: {
                   sdl2-compat = (prev.sdl2-compat.override { x11Support = false; }).overrideAttrs (old: {
                     cmakeFlags = (old.cmakeFlags or []) ++ [
-#                      "-DSDL2COMPAT_X11=OFF"
+                      #"-DSDL2COMPAT_X11=OFF"
                     ];
                   });
                 })
@@ -551,30 +573,46 @@
               SSL_CERT_FILE = "${pkgs.cacert}/etc/ssl/certs/ca-bundle.crt";
 
               # generate_datacopy.py runs on build host (x86_64), so use build-host headers
-              NIX_SYSTEM_INCLUDE_DIRS = with pkgs; lib.concatStringsSep ":" [
-                "${glibc.dev}/include"
-                "${stdenv.cc.cc}/include/c++/${stdenv.cc.cc.version}"
-                "${stdenv.cc.cc}/include/c++/${stdenv.cc.cc.version}/${stdenv.targetPlatform.config}"
-                "${stdenv.cc.cc}/lib/gcc/${stdenv.targetPlatform.config}/${stdenv.cc.cc.version}/include"
-              ];
+            NIX_SYSTEM_INCLUDE_DIRS = with pkgs; lib.concatStringsSep ":" [
+              "${glibc.dev}/include"
+              "${stdenv.cc.cc}/include/c++/${stdenv.cc.cc.version}"
+              "${stdenv.cc.cc}/include/c++/${stdenv.cc.cc.version}/${stdenv.targetPlatform.config}"
+              "${stdenv.cc.cc}/lib/gcc/${stdenv.targetPlatform.config}/${stdenv.cc.cc.version}/include"
+            ];
 
-              postPatch = ''
-                ${pkgs.python3}/bin/python3 -c "
-                import os, sys
-                path = 'radio/util/generate_datacopy.py'
-                old = '    if find_clang.builtin_hdr_path:\n        args.append(\"-I\" + find_clang.builtin_hdr_path)'
-                new = '    if find_clang.builtin_hdr_path:\n        args.append(\"-I\" + find_clang.builtin_hdr_path)\n    _nix_dirs = os.environ.get(\"NIX_SYSTEM_INCLUDE_DIRS\", \"\")\n    if _nix_dirs:\n        for _d in _nix_dirs.split(\":\"):\n            if os.path.isdir(_d):\n                args.append(\"-idirafter\")\n                args.append(_d)'
-                with open(path) as f:
-                    c = f.read()
-                if old not in c:
-                    print('ERROR: pattern not found in ' + path)
-                    print(repr(old))
-                    sys.exit(1)
-                c = c.replace(old, new)
-                with open(path, 'w') as f:
-                    f.write(c)
-                "
-              '';
+            postPatch = ''
+              ${pkgs.python3}/bin/python3 -c "
+              import os, sys
+
+              # patch generate_datacopy.py
+              path = 'radio/util/generate_datacopy.py'
+              old = '    if find_clang.builtin_hdr_path:\n        args.append(\"-I\" + find_clang.builtin_hdr_path)'
+              new = '    if find_clang.builtin_hdr_path:\n        args.append(\"-I\" + find_clang.builtin_hdr_path)\n    _nix_dirs = os.environ.get(\"NIX_SYSTEM_INCLUDE_DIRS\", \"\")\n    if _nix_dirs:\n        for _d in _nix_dirs.split(\":\"):\n            if os.path.isdir(_d):\n                args.append(\"-idirafter\")\n                args.append(_d)'
+              with open(path) as f:
+                  c = f.read()
+              if old not in c:
+                  print('ERROR: pattern not found in ' + path)
+                  print(repr(old))
+                  sys.exit(1)
+              c = c.replace(old, new)
+              with open(path, 'w') as f:
+                  f.write(c)
+
+              # patch generate_yaml.py (different indentation)
+              path = 'radio/util/generate_yaml.py'
+              old = 'if find_clang.builtin_hdr_path:\n    args.append(\"-I\" + find_clang.builtin_hdr_path)'
+              new = 'if find_clang.builtin_hdr_path:\n    args.append(\"-I\" + find_clang.builtin_hdr_path)\n_nix_dirs = os.environ.get(\"NIX_SYSTEM_INCLUDE_DIRS\", \"\")\nif _nix_dirs:\n    for _d in _nix_dirs.split(\":\"):\n        if os.path.isdir(_d):\n            args.append(\"-idirafter\")\n            args.append(_d)'
+              with open(path) as f:
+                  c = f.read()
+              if old not in c:
+                  print('ERROR: pattern not found in ' + path)
+                  print(repr(old))
+                  sys.exit(1)
+              c = c.replace(old, new)
+              with open(path, 'w') as f:
+                  f.write(c)
+              "
+            '';
 
               preConfigure = setupSubmodules + wamrStageCmd;
 
@@ -665,6 +703,26 @@
               '';
             in "${script}";
           };
+          build-simu-tx16ssim = {
+            type = "app";
+            program = let
+              script = pkgs.writeShellScript "build-simu-tx16ssim" ''
+                exec nix build "path:${toString ./.}#edgetx-simu-tx16ssim" \
+                  --out-link simu-tx16ssim \
+                  --impure "$@"
+              '';
+            in "${script}";
+          };
+          build-simu-pi = {
+            type = "app";
+            program = let
+              script = pkgs.writeShellScript "build-simu-pi" ''
+                exec nix build "path:${toString ./.}#edgetx-simu-pi" \
+                  --out-link simu-pi \
+                  --impure "$@"
+              '';
+            in "${script}";
+          };
         };
 
         devShells.default = pkgs.mkShell {
@@ -685,6 +743,8 @@
             echo "  nix run .#build-simu       → builds SDL simu, creates simu/ symlink"
             echo "  nix run .#build-companion  → builds companion, creates edgetx-companion/ symlink"
             echo "  nix run .#build-simu-aarch64 → cross-compiles simu for ARM, creates simu-aarch64/ symlink"
+            echo "  nix run .#build-simu-tx16ssim → builds SDL simu (TX16S sim), creates simu-tx16ssim/ symlink"
+            echo "  nix run .#build-simu-pi      → builds SDL simu (Pi target), creates simu-pi/ symlink"
             echo "NOTE: --impure still needed (builtins.fetchGit for submodules)"
             echo "      FetchContent deps are pre-fetched — no --option sandbox false needed!"
             echo ""

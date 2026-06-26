@@ -77,7 +77,7 @@
     #define PWM_GPIOA_PINS              (LL_GPIO_PIN_0 | LL_GPIO_PIN_1 | LL_GPIO_PIN_2 | LL_GPIO_PIN_3)
   #endif
   // VBat divider is /4 on F42x and F43x devices
-  #if defined(RADIO_TX16S) || defined(RADIO_T15) || defined(RADIO_F16) || defined(RADIO_V16) || defined(RADIO_T18)
+  #if defined(RADIO_TX16S) || defined(RADIO_TX16S_PI) || defined(RADIO_T15) || defined(RADIO_F16) || defined(RADIO_V16) || defined(RADIO_T18)
     #define ADC_VREF_PREC2              330
   #elif defined(RADIO_T16)
     #define ADC_VREF_PREC2              300
@@ -86,7 +86,7 @@
   #endif
 #endif
 
-#if defined(RADIO_TX16S)
+#if defined(RADIO_TX16S) || defined(RADIO_TX16S_PI)
   #define DEFAULT_6POS_CALIB          {3, 12, 21, 30, 38}
   #define DEFAULT_6POS_IDX            5
 #endif
@@ -196,7 +196,7 @@
     #define AUX_SERIAL_DMA_RX                   DMA1
     #define AUX_SERIAL_DMA_RX_STREAM            LL_DMA_STREAM_1
     #define AUX_SERIAL_DMA_RX_CHANNEL           LL_DMA_CHANNEL_4
-    #if defined(RADIO_TX16S) || defined(RADIO_F16)
+    #if defined(RADIO_TX16S) || defined(RADIO_TX16S_PI)|| defined(RADIO_F16)
       #define AUX_SERIAL_PWR_GPIO               GPIO_PIN(GPIOA, 15) // PA.15
     #endif
   #endif
@@ -428,7 +428,7 @@
 #endif
 
 #if defined(RADIO_FAMILY_T16)
-#if defined(RADIO_TX16S)  || defined(RADIO_F16) || defined(RADIO_V16)
+#if defined(RADIO_TX16S) || defined(RADIO_TX16S_PI) || defined(RADIO_F16) || defined(RADIO_V16)
   #define AUDIO_UNMUTE_DELAY            150  // ms
 #else
   #define AUDIO_UNMUTE_DELAY            120  // ms
@@ -461,7 +461,7 @@
 #endif // HARDWARE_TOUCH
 
 // First I2C Bus
-#if defined(RADIO_TX16S) || defined(RADIO_F16) || defined(PCBX12S) || defined(RADIO_T15) || defined(RADIO_V16)
+#if defined(RADIO_TX16S) || defined(RADIO_TX16S_PI) || defined(RADIO_F16) || defined(PCBX12S) || defined(RADIO_T15) || defined(RADIO_V16)
   #define I2C_B1                      I2C1
   #define I2C_B1_SCL_GPIO             GPIO_PIN(GPIOB, 8)  // PB.08
   #define I2C_B1_SDA_GPIO             GPIO_PIN(GPIOB, 9)  // PB.09
@@ -482,7 +482,7 @@
   #define I2C_B2_SDA_GPIO             GPIO_PIN(GPIOB, 11)  // PB.11
   #define I2C_B2_GPIO_AF              LL_GPIO_AF_4    // I2C2
   #define I2C_B2_CLK_RATE             400000
-  #if defined(RADIO_TX16S) || defined(RADIO_F16) || defined(RADIO_V16)
+  #if defined(RADIO_TX16S) || defined(RADIO_TX16S_PI) || defined(RADIO_F16) || defined(RADIO_V16)
     #define I2C_B2_PWR_GPIO           GPIO_PIN(GPIOA, 15)  // PA.15
   #endif
 #endif
@@ -714,7 +714,7 @@
     #define BT_USART_GPIO                 GPIOG
     #define BT_TX_GPIO                    GPIO_PIN(GPIOG, 14) // PG.14
     #define BT_RX_GPIO                    GPIO_PIN(GPIOG, 9)  // PG.09
-    #if defined(RADIO_TX16S)
+    #if defined(RADIO_TX16S) || defined(RADIO_TX16S_PI)
       #define BT_PWR_GPIO                 GPIO_PIN(GPIOB, 0) // PB.00
     #endif
   #endif
@@ -742,7 +742,10 @@
 // SDRAM
 #define SDRAM_BANK2
 
-#if defined(RADIO_T15)
+#if defined(RADIO_TX16S_PI)
+#define LCD_W                          800
+#define LCD_H                          480
+#elif defined(RADIO_T15)
 #define LCD_W                          480
 #define LCD_H                          320
 #else

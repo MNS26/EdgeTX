@@ -2,7 +2,7 @@ if(HARDWARE_KEYS)
   add_definitions(-DHARDWARE_KEYS)
 endif()
 
-if(HARWARE_TOUCH)
+if(HARDWARE_TOUCH)
   add_definitions(-DHARDWARE_TOUCH)
 endif()
 

@@ -133,7 +133,10 @@ if(NOT NATIVE_BUILD)
 
   set(BOOTLOADER_SRC ${BOOTLOADER_SRC} $<TARGET_OBJECTS:stm32_drivers>)
   set(BOOTLOADER_SRC ${BOOTLOADER_SRC} $<TARGET_OBJECTS:stm32_drivers_w_dbg_bl>)
+
 endif()
+
+set(SRC ${SRC} io/bootloader_flash.cpp)
 
 if(IMU)
   add_definitions(-DIMU)
@@ -176,7 +179,6 @@ endif()
 set(FIRMWARE_SRC ${FIRMWARE_SRC} syscalls.c)
 
 set(TARGET_SRC ${TARGET_SRC} ../common/arm/stm32/cpu_id.cpp)
-set(SRC ${SRC} io/bootloader_flash.cpp)
 
 if(FIRMWARE_FORMAT_UF2)
   add_definitions(-DFIRMWARE_FORMAT_UF2)

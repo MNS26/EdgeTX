@@ -79,11 +79,13 @@
 #elif defined(PCBX9E)
  #include "yaml_datastructs_x9e.cpp"
 #elif defined(PCBX9D) || defined(PCBX9DP)
- #if PCBREV < 2019
-  #include "yaml_datastructs_x9d.cpp"
- #else
-  #include "yaml_datastructs_x9dp2019.cpp"
- #endif
+  #if PCBREV < 2019
+   #include "yaml_datastructs_x9d.cpp"
+  #else
+   #include "yaml_datastructs_x9dp2019.cpp"
+  #endif
+#elif defined(RADIO_PI)
+ #include "yaml_datastructs_x10.cpp"
 #else
 #error "Board not supported by YAML storage"
 #endif

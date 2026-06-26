@@ -53,7 +53,7 @@
   #define TARANIS_PCBX9E_FIELD(x)
 #endif
 
-#if defined(PCBHORUS)
+#if defined(PCBHORUS) || defined(RADIO_PI)
   #define N_HORUS_FIELD(x)
   #define HORUS_FIELD(x) x;
 #else
@@ -629,7 +629,7 @@ static_assert(sizeof(potwarnen_t) * 8 >= MAX_POTS,
   #define TOPBAR_DATA
 #endif
 
-#if defined(PCBHORUS) || defined(PCBTARANIS) || defined(PCBPL18) || defined(PCBST16)
+#if defined(PCBHORUS) || defined(PCBTARANIS) || defined(PCBPL18) || defined(PCBST16) || defined(RADIO_PI)
   #define SCRIPT_DATA \
     NOBACKUP(ScriptData scriptsData[MAX_SCRIPTS]);
 #else
