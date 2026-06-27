@@ -49,12 +49,6 @@ if(NOT SDL2_FOUND)
   find_package(SDL2 REQUIRED)
 endif()
 
-option(SIMU_TARGET "Configure pi target" ON)
-if(NOT SIMU_TARGET)
-  message(STATUS "pi target disabled")
-  return()
-endif()
-
 if(MINGW)
   set(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} -mno-ms-bitfields")
 endif()
@@ -126,26 +120,55 @@ set(PI_SRC
 )
 set(PI_SRC ${PI_SRC} PARENT_SCOPE)
 
-add_executable(simu
+# Image assets (only once)
+#if(NOT TARGET image_assets)
+#  add_png_target(image_assets "../simu/assets/images/*.png")
+#endif()
+add_png_target(image_assets "assets/images/*.png")
+
+# STB
+set(STB_DIR ${RADIO_SRC_DIR}/thirdparty/stb)
+
+# Pi standalone executable (no ImGui, direct SDL)
+add_executable(pi
   EXCLUDE_FROM_ALL
   ${PI_SRC}
   ../simu/simuaudio.cpp
   ../simu/display.cpp
-  ../simu/widgets.cpp
-  ../simu/knobs.cpp
   ../simu/arg_parser.cpp
-  ../simu/sdl_simu.cpp
+  sdl_pi.cpp
 )
 
-target_compile_options(simu PUBLIC -DSIMU)
-
-add_png_target(image_assets "../simu/assets/images/*.png")
-add_dependencies(simu image_assets bm800_bitmaps yaml_data)
+target_compile_options(pi PUBLIC -DSIMU)
+target_include_directories(pi PUBLIC ${STB_DIR})
+target_link_libraries(pi PRIVATE SDL2::SDL2)
+add_dependencies(pi image_assets bm800_bitmaps yaml_data)
 
 # STB
-set(STB_DIR ${RADIO_SRC_DIR}/thirdparty/stb)
-target_include_directories(simu PUBLIC ${STB_DIR})
+target_include_directories(pi PUBLIC ${STB_DIR})
 
-# ImGui
-include(FetchImgui)
-target_link_libraries(simu PRIVATE imgui)
+# Pi simu executable (ImGui chrome, for debugging)
+option(PI_SIMU "Build pi simu with ImGui chrome" OFF)
+if(PI_SIMU)
+  add_executable(standalone
+    EXCLUDE_FROM_ALL
+    ${PI_SRC}
+    ../simu/simuaudio.cpp
+    ../simu/display.cpp
+    ../simu/widgets.cpp
+    ../simu/knobs.cpp
+    ../simu/arg_parser.cpp
+    ../simu/sdl_simu.cpp
+  )
+
+  target_compile_options(standalone PUBLIC -DSIMU)
+  target_include_directories(standalone PUBLIC ${STB_DIR})
+  target_link_libraries(standalone PRIVATE SDL2::SDL2)
+  add_dependencies(standalone image_assets bm800_bitmaps yaml_data)
+
+  # STB
+  target_include_directories(standalone PUBLIC ${STB_DIR})
+
+  include(FetchImgui)
+  target_link_libraries(standalone PRIVATE imgui)
+endif()
