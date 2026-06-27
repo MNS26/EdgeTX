@@ -378,6 +378,7 @@
 
             configurePhase = ''
               runHook preConfigure
+              unset SOURCE_DATE_EPOCH
               cmake -B build -S . ${builtins.concatStringsSep " " cmakeFlags} -Wno-dev
               runHook postConfigure
             '';
@@ -399,7 +400,6 @@
 
             meta.mainProgram = "simu";
           };
-
         # ---- Companion + Standalone Simulator (Qt6) ----
         mkCompanion =
           { extraNativeBuildInputs ? [ ], extraBuildInputs ? [ ] }:
@@ -500,12 +500,9 @@
 
           edgetx-simu = mkSimu { };
 
-          edgetx-simu-tx16ssim = mkSimu {
-            pcbrev = "TX16S_SIM";
-          };
-
           edgetx-simu-pi = mkSimu {
             pcb = "PI";
+            pcbrev = "";
           };
 
           edgetx-companion = mkCompanion { };
@@ -703,16 +700,6 @@
               '';
             in "${script}";
           };
-          build-simu-tx16ssim = {
-            type = "app";
-            program = let
-              script = pkgs.writeShellScript "build-simu-tx16ssim" ''
-                exec nix build "path:${toString ./.}#edgetx-simu-tx16ssim" \
-                  --out-link simu-tx16ssim \
-                  --impure "$@"
-              '';
-            in "${script}";
-          };
           build-simu-pi = {
             type = "app";
             program = let
@@ -743,7 +730,6 @@
             echo "  nix run .#build-simu       → builds SDL simu, creates simu/ symlink"
             echo "  nix run .#build-companion  → builds companion, creates edgetx-companion/ symlink"
             echo "  nix run .#build-simu-aarch64 → cross-compiles simu for ARM, creates simu-aarch64/ symlink"
-            echo "  nix run .#build-simu-tx16ssim → builds SDL simu (TX16S sim), creates simu-tx16ssim/ symlink"
             echo "  nix run .#build-simu-pi      → builds SDL simu (Pi target), creates simu-pi/ symlink"
             echo "NOTE: --impure still needed (builtins.fetchGit for submodules)"
             echo "      FetchContent deps are pre-fetched — no --option sandbox false needed!"
