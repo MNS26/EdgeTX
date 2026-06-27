@@ -65,9 +65,11 @@ endif()
 set(CMAKE_C_FLAGS "${CMAKE_C_FLAGS} ${WARNING_FLAGS}")
 set(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} ${WARNING_FLAGS}")
 
-# Pi drivers (referencing simu stubs initially)
+# Pi drivers: pi-specific sources + simu stubs
 set(PI_DRIVERS
-  ../simu/simulib.cpp
+  board.cpp
+  touch_driver.cpp
+  pi_simulib.cpp
   ../simu/simufatfs.cpp
   ../simu/simudisk.cpp
   ../simu/simulcd.cpp
@@ -76,7 +78,7 @@ set(PI_DRIVERS
   ../simu/adc_driver.cpp
   ../simu/module_drivers.cpp
   ../simu/led_driver.cpp
-  ../simu/backlight_driver.cpp
+  backlight_driver.cpp
   ../simu/bt_driver.cpp
   ../simu/timers_driver.cpp
   ../simu/abnormal_reboot.cpp

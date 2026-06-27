@@ -723,13 +723,6 @@ void registerOpenTxFirmwares()
   firmware->addOption("flyskygimbals", Firmware::tr("Support hardware mod: FlySky Paladin EV Gimbals"));
   registerOpenTxFirmware(firmware);
 
-  /* Radiomaster TX16S based rpi board (simulator, high-res display) */
-  firmware = new OpenTxFirmware(FIRMWAREID("tx16s-pi"), Firmware::tr("Radiomaster TX16S simu"), BOARD_RADIOMASTER_TX16S);
-  addOpenTxFrskyOptions(firmware);
-  addOpenTxRfOptions(firmware, FLEX);
-  firmware->addOptionsGroup({opt_bt, opt_internal_gps});
-  registerOpenTxFirmware(firmware);
-
   /* Raspberry Pi bsaed board (simulator, high-res display) */
   firmware = new OpenTxFirmware(FIRMWAREID("pi"), Firmware::tr("Radiomaster TX16S simu"), BOARD_RADIOMASTER_TX16S);
   addOpenTxFrskyOptions(firmware);
