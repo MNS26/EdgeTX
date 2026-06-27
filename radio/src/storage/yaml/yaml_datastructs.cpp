@@ -85,7 +85,7 @@
    #include "yaml_datastructs_x9dp2019.cpp"
   #endif
 #elif defined(RADIO_PI)
- #include "yaml_datastructs_x10.cpp"
+ #include "yaml_datastructs_pi.cpp"
 #else
 #error "Board not supported by YAML storage"
 #endif

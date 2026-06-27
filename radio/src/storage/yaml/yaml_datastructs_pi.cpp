@@ -161,14 +161,19 @@ const struct YamlIdStr enum_MixerMultiplex[] = {
 };
 const struct YamlIdStr enum_MixSources[] = {
   {  MIXSRC_NONE, "NONE"  },
+// TODO: clean this up since its a copy of x10
+  #if defined(IMU)
   {  MIXSRC_TILT_X, "TILT_X"  },
   {  MIXSRC_TILT_Y, "TILT_Y"  },
+#endif
+#if defined(PCBHORUS)
   {  MIXSRC_SPACEMOUSE_A, "SPACEMOUSE_A"  },
   {  MIXSRC_SPACEMOUSE_B, "SPACEMOUSE_B"  },
   {  MIXSRC_SPACEMOUSE_C, "SPACEMOUSE_C"  },
   {  MIXSRC_SPACEMOUSE_D, "SPACEMOUSE_D"  },
   {  MIXSRC_SPACEMOUSE_E, "SPACEMOUSE_E"  },
   {  MIXSRC_SPACEMOUSE_F, "SPACEMOUSE_F"  },
+#endif
   {  MIXSRC_MIN, "MIN"  },
   {  MIXSRC_MAX, "MAX"  },
   {  MIXSRC_TX_VOLTAGE, "TX_VOLTAGE"  },
@@ -887,7 +892,7 @@ static const struct YamlNode struct_CustomScreenData[] = {
   YAML_END
 };
 static const struct YamlNode struct_TopBarPersistentData[] = {
-  YAML_ARRAY("zones", 0, 6, struct_ZonePersistentData, widget_is_active),
+  YAML_ARRAY("zones", 0, 7, struct_ZonePersistentData, widget_is_active),
   YAML_END
 };
 static const struct YamlNode struct_USBJoystickChData[] = {
@@ -952,7 +957,7 @@ static const struct YamlNode struct_ModelData[] = {
   YAML_ARRAY("telemetrySensors", 112, 60, struct_TelemetrySensor, NULL),
   YAML_ARRAY("screenData", 0, 10, struct_CustomScreenData, screen_is_active),
   YAML_STRUCT("topbarData", 0, struct_TopBarPersistentData, isAlwaysActive),
-  YAML_ARRAY("topbarWidgetWidth", 8, 6, struct_unsigned_8, NULL),
+  YAML_ARRAY("topbarWidgetWidth", 8, 7, struct_unsigned_8, NULL),
   YAML_UNSIGNED( "view", 8 ),
   YAML_STRING("modelRegistrationID", 8),
   YAML_UNSIGNED( "usbJoystickExtMode", 1 ),
