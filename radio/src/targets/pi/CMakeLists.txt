@@ -13,7 +13,12 @@ if(NOT PI_BUILD)
   set(STORAGE_MODELSLIST YES)
   set(HAPTIC ON)
   set(AUDIO ON)
-  option(MULTIMODULE "DIY Multiprotocol TX Module" ON)
+  option(MULTIMODULE "DIY Multiprotocol TX Module (https://github.com/pascallanger/DIY-Multiprotocol-TX-Module)" ON)
+  set(DEFAULT_INTERNAL_MODULE MULTIMODULE CACHE STRING "Default internal module")
+
+  # defines existing internal modules
+  set(INTERNAL_MODULES PXX1;PXX2;MULTI;CRSF CACHE STRING "Internal modules")
+
 
   add_definitions(-DHARDWARE_KEYS)
 

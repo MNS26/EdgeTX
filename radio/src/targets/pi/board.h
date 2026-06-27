@@ -2,14 +2,18 @@
 
 #include "definitions.h"
 #include "edgetx_constants.h"
-#include "hal.h"
-
-#include "board_common.h"
-#include "hal/serial_port.h"
-#include "hal/watchdog_driver.h"
 
 #define ROTARY_ENCODER_NAVIGATION
 
+#define BOOTLOADER_KEYS 0x42
+
+#include "board_common.h"
+#include "hal.h"
+
+#include "hal/serial_port.h"
+#include "hal/watchdog_driver.h"
+
+// Piggybacking on the simu
 #if defined(HARDWARE_TOUCH)
 struct TouchState touchPanelRead();
 bool touchPanelEventOccured();
@@ -25,7 +29,6 @@ PACK(typedef struct {
 
 extern HardwareOptions hardwareOptions;
 
-#define BOOTLOADER_KEYS 0x42
 #define FLASHSIZE                      0x200000
 #define FLASH_PAGESIZE                 256
 #define BOOTLOADER_SIZE                0x20000
