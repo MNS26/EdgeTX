@@ -71,6 +71,13 @@
 #define TR_QM_LS_MON                    "邏輯開關\n查看器"
 #define TR_QM_STATS                     "統計"
 #define TR_QM_DEBUG                     "Debug"
+#if defined(RADIO_PI)
+#warning TRANSLATE THIS
+#define TR_QM_SYSTEM                    "System"
+#define TR_QM_EXIT                      "Shutdown"
+#define TR_QM_MINIMIZE                  "Minimize"
+#endif
+
 #define TR_MAIN_MODEL_SETTINGS          "模型设置"
 #define TR_MAIN_RADIO_SETTINGS          "系统设置"
 #define TR_MAIN_MENU_MANAGE_MODELS    "模型管理"

@@ -74,6 +74,13 @@
 #define TR_QM_LS_MON                    "LS\nМонитор"
 #define TR_QM_STATS                     "Статистика"
 #define TR_QM_DEBUG                     "Отладка"
+#if defined(RADIO_PI)
+#warning TRANSLATE THIS
+#define TR_QM_SYSTEM                    "System"
+#define TR_QM_EXIT                      "Shutdown"
+#define TR_QM_MINIMIZE                  "Minimize"
+#endif
+
 #define TR_MAIN_MODEL_SETTINGS          "Настройки Моделей"
 #define TR_MAIN_RADIO_SETTINGS          "Настройки Пульта"
 #define TR_MAIN_MENU_MANAGE_MODELS      "Меню Моделей"

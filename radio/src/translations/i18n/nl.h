@@ -73,6 +73,12 @@
 #define TR_QM_LS_MON                    "LS\nMonitor"
 #define TR_QM_STATS                     "Statistics"
 #define TR_QM_DEBUG                     "Debug"
+
+#if defined(RADIO_PI)
+#define TR_QM_SYSTEM                    "Systeem"
+#define TR_QM_EXIT                      "Sluiten"
+#define TR_QM_MINIMIZE                  "Minimaliseren"
+#endif
 #define TR_MAIN_MODEL_SETTINGS          "Model Settings"
 #define TR_MAIN_RADIO_SETTINGS          "Radio Settings"
 #define TR_MAIN_MENU_MANAGE_MODELS      "Model Manager"
