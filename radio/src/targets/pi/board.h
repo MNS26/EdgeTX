@@ -44,10 +44,10 @@ extern HardwareOptions hardwareOptions;
 #define NUM_TRIMS                               6
 #define NUM_TRIMS_KEYS                          (NUM_TRIMS * 2)
 
-// Battery driver
-#define BATTERY_WARN      66
-#define BATTERY_MIN       67
-#define BATTERY_MAX       83
+// Battery driver (6S LiPo defaults)
+#define BATTERY_WARN      222
+#define BATTERY_MIN       210
+#define BATTERY_MAX       247
 
 // Backlight driver
 #define BACKLIGHT_LEVEL_MAX     100
