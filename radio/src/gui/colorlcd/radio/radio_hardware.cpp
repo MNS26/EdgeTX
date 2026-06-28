@@ -104,7 +104,7 @@ const static SetupLineDef setupLines[] = {
       batMin->setSuffix("V");
       new StaticText(parent, {x + EdgeTxStyles::EDIT_FLD_WIDTH_NARROW + PAD_SMALL, y + PAD_SMALL + 1, PAD_LARGE, EdgeTxStyles::STD_FONT_HEIGHT}, "-");
       auto batMax = new NumberEdit(
-          parent, {x + EdgeTxStyles::EDIT_FLD_WIDTH_NARROW + PAD_LARGE + PAD_SMALL, y, EdgeTxStyles::EDIT_FLD_WIDTH_NARROW, 0}, g_eeGeneral.vBatMin - 29 + 120, 40 + 120,
+          parent, {x + EdgeTxStyles::EDIT_FLD_WIDTH_NARROW + PAD_LARGE + PAD_SMALL, y, EdgeTxStyles::EDIT_FLD_WIDTH_NARROW, 0}, g_eeGeneral.vBatMin - 29 + 120, 127 + 120,
           GET_SET_WITH_OFFSET(g_eeGeneral.vBatMax, 120), PREC1);
       batMax->setSuffix("V");
 

@@ -373,7 +373,7 @@ void menuRadioSetup(event_t event)
           if (menuHorizontalPosition==0)
             CHECK_INCDEC_GENVAR(event, g_eeGeneral.vBatMin, -50, g_eeGeneral.vBatMax+29); // min=4.0V
           else
-            CHECK_INCDEC_GENVAR(event, g_eeGeneral.vBatMax, g_eeGeneral.vBatMin-29, +40); // max=16.0V
+            CHECK_INCDEC_GENVAR(event, g_eeGeneral.vBatMax, g_eeGeneral.vBatMin-29, +127); // max=24.7V
         }
         break;
 
@@ -498,7 +498,7 @@ void menuRadioSetup(event_t event)
       case ITEM_RADIO_SETUP_BATTERY_WARNING:
         lcdDrawTextIndented(y, STR_BATTERYWARNING);
         putsVolts(RADIO_SETUP_2ND_COLUMN, y, g_eeGeneral.vBatWarn, attr|LEFT);
-        if (attr) CHECK_INCDEC_GENVAR(event, g_eeGeneral.vBatWarn, 40, 120); // 4-12V
+        if (attr) CHECK_INCDEC_GENVAR(event, g_eeGeneral.vBatWarn, 40, 252); // 4-25.2V
         break;
 
       case ITEM_RADIO_SETUP_MEMORY_WARNING:

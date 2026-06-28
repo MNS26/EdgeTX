@@ -458,7 +458,7 @@ void menuRadioHardware(event_t event)
           if (menuHorizontalPosition==0)
             CHECK_INCDEC_GENVAR(event, g_eeGeneral.vBatMin, -60, g_eeGeneral.vBatMax+29); // min=3.0V
           else
-            CHECK_INCDEC_GENVAR(event, g_eeGeneral.vBatMax, g_eeGeneral.vBatMin-29, +40); // max=16.0V
+            CHECK_INCDEC_GENVAR(event, g_eeGeneral.vBatMax, g_eeGeneral.vBatMin-29, +127); // max=24.7V
         }
         break;
 #endif

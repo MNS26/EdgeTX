@@ -385,7 +385,7 @@ const static SetupLineDef alarmsPageSetupLines[] = {
     // Battery warning
     STR_DEF(STR_BATTERYWARNING),
     [](Window* parent, coord_t x, coord_t y) {
-      auto edit = new NumberEdit(parent, {x, y, EdgeTxStyles::EDIT_FLD_WIDTH_NARROW, 0}, 30, 120,
+      auto edit = new NumberEdit(parent, {x, y, EdgeTxStyles::EDIT_FLD_WIDTH_NARROW, 0}, 30, 252,
                                 GET_SET_DEFAULT(g_eeGeneral.vBatWarn), PREC1);
       edit->setSuffix("V");
     }
