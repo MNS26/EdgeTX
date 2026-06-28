@@ -19,7 +19,11 @@
  * GNU General Public License for more details.
  */
 
+#define SDL_MAIN_HANDLED
 #include <SDL.h>
+#include <SDL_keycode.h>
+
+#include "stb_image.h"
 
 #include <cstdio>
 #include <cstdlib>
@@ -34,6 +38,7 @@
 #include "simu.h"
 #include "simuaudio.h"
 #include "simulib.h"
+#include "edgetx.h"
 
 #if defined(ROTARY_ENCODER_NAVIGATION)
 #include "hal/rotary_encoder.h"
@@ -46,14 +51,24 @@ static SDL_Window* window;
 static SDL_Renderer* renderer;
 static SDL_Texture* screen_texture;
 
+#if !defined(__EMSCRIPTEN__)
+static const unsigned char _icon_png[] = {
+#include "icon.lbm"
+};
+#endif
+
+static bool app_running = false;
+
 static bool handleKeyEvent(const SDL_Event& event)
 {
   if (event.type != SDL_KEYDOWN && event.type != SDL_KEYUP)
-    return false;
+  return false;
 
   const auto& key_event = event.key;
   bool key_handled = false;
   uint8_t key = 0;
+
+
 
   switch (key_event.keysym.sym) {
 
@@ -174,6 +189,38 @@ static bool handleKeyEvent(const SDL_Event& event)
   return key_handled;
 }
 
+static void redraw();
+
+static bool handleEvents() {
+  SDL_Event event;
+  while (SDL_PollEvent(&event)) {
+    if (handleKeyEvent(event)) continue;
+#if defined(HARDWARE_TOUCH)
+    if (event.type == SDL_MOUSEBUTTONDOWN ||
+        event.type == SDL_MOUSEMOTION) {
+      if (event.button.button == SDL_BUTTON_LEFT ||
+          (event.motion.state & SDL_BUTTON_LMASK)) {
+        int x, y, ww, wh;
+        SDL_GetMouseState(&x, &y);
+        SDL_GetWindowSize(window, &ww, &wh);
+        touchPanelDown(x * LCD_W / ww, y * LCD_H / wh);
+      }
+    } else if (event.type == SDL_MOUSEBUTTONUP) {
+      if (event.button.button == SDL_BUTTON_LEFT)
+        touchPanelUp();
+    }
+#endif
+    if (event.type == SDL_QUIT) {app_running = false; return false;}
+
+    if (event.type == SDL_WINDOWEVENT &&
+        event.window.event == SDL_WINDOWEVENT_CLOSE &&
+        event.window.windowID == SDL_GetWindowID(window))
+      return false;
+  }
+  redraw();
+  return true;
+}
+
 static SDL_Surface* LoadImage(const unsigned char* pixels, size_t len)
 {
   // Read data
@@ -195,21 +242,9 @@ static SDL_Surface* LoadImage(const unsigned char* pixels, size_t len)
   return surface;
 }
 
-static SDL_Texture* LoadTexture(SDL_Renderer* renderer, const unsigned char* pixels, size_t len)
-{
-  SDL_Surface* surface = LoadImage(pixels, len);
-  if (!surface) return NULL;
-
-  SDL_Texture* texture = SDL_CreateTextureFromSurface(renderer, surface);
-  SDL_FreeSurface(surface);
-
-  return texture;
-}
-
 static void redraw()
 {
   refreshDisplay(screen_texture);
-
   SDL_RenderClear(renderer);
   SDL_RenderCopy(renderer, screen_texture, nullptr, nullptr);
   SDL_RenderPresent(renderer);
@@ -226,7 +261,7 @@ int main(int argc, char* argv[])
     return 0;
   }
 
-  if (SDL_Init(SDL_INIT_VIDEO | SDL_INIT_AUDIO) != 0) {
+  if (SDL_Init(SDL_INIT_VIDEO | SDL_INIT_AUDIO | SDL_INIT_GAMECONTROLLER) != 0) {
     SDL_Log("SDL_Init: %s", SDL_GetError());
     return 1;
   }
@@ -235,11 +270,12 @@ int main(int argc, char* argv[])
     SDL_Log("simuAudioInit failed — continuing without audio");
   }
 
+  auto window_flags = SDL_WINDOW_BORDERLESS;
   window = SDL_CreateWindow("EdgeTX Pi",
                              SDL_WINDOWPOS_CENTERED,
                              SDL_WINDOWPOS_CENTERED,
                              LCD_W, LCD_H,
-                             SDL_WINDOW_BORDERLESS);
+                             window_flags);
   if (!window) {
     SDL_Log("SDL_CreateWindow: %s", SDL_GetError());
     SDL_Quit();
@@ -265,62 +301,62 @@ int main(int argc, char* argv[])
     return 1;
   }
 
-  #if !defined(__EMSCRIPTEN__)
-  SDL_Surface* icon = LoadImage(_icon_png, sizeof(_icon_png));
-  if (window && icon) {
-    SDL_SetWindowIcon(window, icon);
+#if !defined(__EMSCRIPTEN__)
+  SDL_Surface* sdl_icon = LoadImage(_icon_png, sizeof(_icon_png));
+  if (window && sdl_icon) {
+    SDL_SetWindowIcon(window, sdl_icon);
+    SDL_FreeSurface(sdl_icon);
   }
-  #endif
+#endif
 
   simuInit();
   simuFatfsSetPaths(args.getStoragePath().c_str(),
                     args.getSettingsPath().c_str());
   simuStart();
 
-  bool running = true;
-  while (running) {
-    Uint64 start_ts = SDL_GetPerformanceCounter();
-
-    SDL_Event event;
-    while (SDL_PollEvent(&event)) {
-      if (handleKeyEvent(event))
-        continue;
-
-      if (event.type == SDL_QUIT) {
-        running = false;
-        break;
-      }
-
-      if (event.type == SDL_WINDOWEVENT &&
-          event.window.event == SDL_WINDOWEVENT_CLOSE) {
-        running = false;
-        break;
-      }
-
-#if defined(HARDWARE_TOUCH)
-      if (event.type == SDL_MOUSEBUTTONDOWN ||
-          event.type == SDL_MOUSEMOTION) {
-        if (event.button.button == SDL_BUTTON_LEFT ||
-            (event.motion.state & SDL_BUTTON_LMASK)) {
-          int x, y, ww, wh;
-          SDL_GetMouseState(&x, &y);
-          SDL_GetWindowSize(window, &ww, &wh);
-          touchPanelDown(x * LCD_W / ww, y * LCD_H / wh);
-        }
-      } else if (event.type == SDL_MOUSEBUTTONUP) {
-        if (event.button.button == SDL_BUTTON_LEFT)
-          touchPanelUp();
-      }
-#endif
+  // Main Loop
+  SDL_SetEventFilter([](void*, SDL_Event* event) {
+    if (event->type == SDL_WINDOWEVENT &&
+    (event->window.event == SDL_WINDOWEVENT_EXPOSED)) {
+      redraw();
+      return 0;
     }
+    return 1;
+  }, NULL);
 
-    if (!running) break;
+  app_running = true;
+  while (app_running) {
+    Uint64 start_ts = SDL_GetPerformanceCounter();
+    if (!handleEvents()) break;
 
-    redraw();
+//    SDL_Event event;
+//    while (SDL_PollEvent(&event)) {
+//      if (handleKeyEvent(event))
+//        continue;
+//
+//      if (event.type == SDL_QUIT) {
+//        app_running = false;
+//        break;
+//      }
+//
+//      if (event.type == SDL_WINDOWEVENT &&
+//          event.window.event == SDL_WINDOWEVENT_CLOSE) {
+//        app_running = false;
+//        break;
+//      }
+
+
+//    }
+
+    if (!app_running) break;
+
+//    redraw();
 
     Uint64 end_ts = SDL_GetPerformanceCounter();
     float elapsed_ms =
-        (end_ts - start_ts) / (float)SDL_GetPerformanceFrequency() * 1000.0f;
+      (end_ts - start_ts) / (float)SDL_GetPerformanceFrequency() * 1000.0f;
+
+    // Limit to 60 FPS
     SDL_Delay(std::max(0, (int)floor(16.666f - elapsed_ms)));
   }
 
@@ -343,7 +379,12 @@ uint16_t simuGetAnalog(uint8_t idx)
   auto max_sticks = adcGetMaxInputs(ADC_INPUT_MAIN);
   if (idx < max_sticks) {
     // Return center position for all gimbal axes
-    return 2048;
+    switch (idx){
+      case 0:return 2048;
+      case 1:return 2048;
+      case 2:return 2048;
+      case 3:return 2048;
+    }
   }
 
   idx -= max_sticks;
@@ -351,12 +392,28 @@ uint16_t simuGetAnalog(uint8_t idx)
   auto max_pots = adcGetMaxInputs(ADC_INPUT_FLEX);
   if (idx < max_pots) {
     // Return center position for all pots/sliders
-    return 2048;
+    switch (getPotType(idx)){
+      case FLEX_POT:
+      case FLEX_POT_CENTER:
+      case FLEX_SLIDER:
+        return 2048;
+      case FLEX_MULTIPOS:
+        return 4096/3; 
+    }
   }
-
   return 0;
 }
 
 void simuTrace(const char* text) {}
 
 void simuLcdNotify() {}
+
+void simuMinimize()
+{
+  SDL_MinimizeWindow(window);
+}
+
+void simuShutdown()
+{
+  app_running = false;
+}

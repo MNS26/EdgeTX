@@ -49,9 +49,8 @@
 #include "view_text.h"
 
 #if defined(RADIO_PI)
-#warning CLEANUP CODE. dont call extern
-extern void simuMinimize();
-extern void simuShutdown();
+// Cleanest way i could think of
+#include "targets/simu/simu.h"
 
 const PageDef windowMenuItems[] = {
   { ICON_BTN_CLOSE, STR_DEF(STR_QM_MINIMIZE), STR_DEF(STR_QM_MINIMIZE), PAGE_ACTION, QM_NONE, nullptr, nullptr, []() { simuMinimize(); } },
