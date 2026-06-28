@@ -76,7 +76,7 @@
 #define TR_QM_DEBUG                     "Отладка"
 #if defined(RADIO_PI)
 #warning TRANSLATE THIS
-#define TR_QM_SYSTEM                    "System"
+#define TR_QM_WINDOW                    "Window"
 #define TR_QM_EXIT                      "Shutdown"
 #define TR_QM_MINIMIZE                  "Minimize"
 #endif

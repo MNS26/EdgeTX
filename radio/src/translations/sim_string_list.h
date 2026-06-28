@@ -243,7 +243,7 @@
 #define STR_MAIN_VIEW_9 currentLangStrings->STR_MAIN_VIEW_9
 
 #if defined(RADIO_PI)
-#define STR_QM_SYSTEM currentLangStrings->STR_QM_SYSTEM
+#define STR_QM_WINDOW currentLangStrings->STR_QM_WINDOW
 #define STR_QM_EXIT currentLangStrings->STR_QM_EXIT
 #define STR_QM_MINIMIZE currentLangStrings->STR_QM_MINIMIZE
 #endif

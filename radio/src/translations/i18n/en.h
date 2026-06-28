@@ -72,7 +72,7 @@
 #define TR_QM_STATS                     "Statistics"
 #define TR_QM_DEBUG                     "Debug"
 #if defined(RADIO_PI)
-#define TR_QM_SYSTEM                    "System"
+#define TR_QM_WINDOW                    "Window"
 #define TR_QM_EXIT                      "Shutdown"
 #define TR_QM_MINIMIZE                  "Minimize"
 #endif

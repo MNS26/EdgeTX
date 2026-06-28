@@ -49,12 +49,11 @@
 #include "view_text.h"
 
 #if defined(RADIO_PI)
-// TODO: rework code
 #warning CLEANUP CODE. dont call extern
 extern void simuMinimize();
 extern void simuShutdown();
 
-const PageDef systemMenuItems[] = {
+const PageDef windowMenuItems[] = {
   { ICON_BTN_CLOSE, STR_DEF(STR_QM_MINIMIZE), STR_DEF(STR_QM_MINIMIZE), PAGE_ACTION, QM_NONE, nullptr, nullptr, []() { simuMinimize(); } },
   { ICON_BTN_CLOSE, STR_DEF(STR_QM_EXIT), STR_DEF(STR_QM_EXIT), PAGE_ACTION, QM_NONE, nullptr, nullptr, []() { simuShutdown(); } },
   { EDGETX_ICONS_COUNT }
@@ -151,7 +150,7 @@ const QMMainDef qmTopItems[] = {
   { ICON_STATS, STR_DEF(STR_QM_STATS), STR_DEF(STR_MAIN_MENU_STATISTICS), QM_ACTION, QM_NONE, nullptr, []() { QuickMenu::openPage(QM_TOOLS_STATS); }},
   { ICON_RADIO_VERSION, STR_DEF(STR_QM_ABOUT), STR_DEF(STR_MAIN_MENU_ABOUT_EDGETX), QM_ACTION, QM_NONE, nullptr, []() { QuickMenu::openPage(QM_RADIO_VERSION); }},
 #if defined(RADIO_PI)
-  { ICON_SHUTDOWN, STR_DEF(STR_QM_SYSTEM), STR_DEF(STR_QM_SYSTEM), QM_SUBMENU, QM_NONE, systemMenuItems},
+  { ICON_SHUTDOWN, STR_DEF(STR_QM_WINDOW), STR_DEF(STR_QM_WINDOW), QM_SUBMENU, QM_NONE, windowMenuItems},
 #endif
   // Not displayed - search / run only
   { ICON_MODEL, STR_DEF(STR_QM_MODEL_SETUP), STR_DEF(STR_MAIN_MENU_MODEL_SETTINGS), QM_SUBMENU, QM_NONE, modelMenuItems},
@@ -207,7 +206,7 @@ const QMMainDef qmTopItems[] = {
   { ICON_THEME, STR_DEF(STR_QM_UI_SETUP), STR_DEF(STR_MAIN_MENU_SCREEN_SETTINGS), QM_SUBMENU, QM_NONE, screensMenuItems},
   { ICON_RADIO_TOOLS, STR_DEF(STR_QM_TOOLS), STR_DEF(STR_QM_TOOLS), QM_SUBMENU, QM_NONE, toolsMenuItems},
 #if defined(RADIO_PI)
-  { ICON_BTN_CLOSE, STR_DEF(STR_QM_SYSTEM), STR_DEF(STR_QM_SYSTEM), QM_SUBMENU, QM_NONE, systemMenuItems},
+  { ICON_BTN_CLOSE, STR_DEF(STR_QM_WINDOW), STR_DEF(STR_QM_WINDOW), QM_SUBMENU, QM_NONE, windowMenuItems},
 #endif
   { EDGETX_ICONS_COUNT }
 };

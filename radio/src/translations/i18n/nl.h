@@ -75,7 +75,7 @@
 #define TR_QM_DEBUG                     "Debug"
 
 #if defined(RADIO_PI)
-#define TR_QM_SYSTEM                    "Systeem"
+#define TR_QM_WINDOW                    "Venster"
 #define TR_QM_EXIT                      "Sluiten"
 #define TR_QM_MINIMIZE                  "Minimaliseren"
 #endif
