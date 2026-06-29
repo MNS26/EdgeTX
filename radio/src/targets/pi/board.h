@@ -48,6 +48,7 @@ extern HardwareOptions hardwareOptions;
 #define BATTERY_WARN      222
 #define BATTERY_MIN       210
 #define BATTERY_MAX       247
+bool usbChargerLed();
 
 // Backlight driver
 #define BACKLIGHT_LEVEL_MAX     100

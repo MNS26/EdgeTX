@@ -26,14 +26,18 @@
 #include <fstream>
 #include <string>
 #include <cstring>
+#include <cstdio>
 
 static char battery_name[32] = {};
+static char ac_name[32] = {};
 static bool battery_found = false;
+static bool ac_found = false;
 
 static void scanPowerSupply()
 {
   DIR* dir = opendir("/sys/class/power_supply");
-  if (!dir) return;
+  if (!dir)
+    return;
 
   struct dirent* entry;
   while ((entry = readdir(dir)) != nullptr) {
@@ -42,7 +46,8 @@ static void scanPowerSupply()
     std::string type_path =
         std::string("/sys/class/power_supply/") + entry->d_name + "/type";
     std::ifstream type_file(type_path);
-    if (!type_file.is_open()) continue;
+    if (!type_file.is_open())
+      continue;
 
     std::string type;
     type_file >> type;
@@ -50,6 +55,9 @@ static void scanPowerSupply()
     if (type == "Battery" && !battery_found) {
       strncpy(battery_name, entry->d_name, sizeof(battery_name) - 1);
       battery_found = true;
+    } else if (type == "Mains" && !ac_found) {
+      strncpy(ac_name, entry->d_name, sizeof(ac_name) - 1);
+      ac_found = true;
     }
   }
   closedir(dir);
@@ -80,33 +88,52 @@ void battery_charge_init()
 
 uint16_t getBatteryVoltage()
 {
-  if (!battery_found) return BATTERY_MAX * 10;
+  if (!battery_found)
+    return BATTERY_MAX * 10;
 
   char path[64];
   snprintf(path, sizeof(path), "/sys/class/power_supply/%s/voltage_now",
            battery_name);
 
   int64_t uv = readIntFromFile(path);
-  if (uv < 0) return BATTERY_MAX * 10;
+  if (uv < 0)
+    return BATTERY_MAX * 10;
 
-  // voltage_now is in microvolts, convert to 10mV units
   return uv / 10000;
 }
 
 bool isChargerActive()
 {
-  if (!battery_found) return false;
+  // Check if AC adapter is present and online
+  if (ac_found) {
+    char path[64];
+    snprintf(path, sizeof(path), "/sys/class/power_supply/%s/online",
+             ac_name);
+    int online = readIntFromFile(path);
+    if (online == 1) return true;
+  }
 
-  char path[64];
-  snprintf(path, sizeof(path), "/sys/class/power_supply/%s/status",
-           battery_name);
-  return readStringFromFile(path) == "Charging";
+  // Fall back to checking battery charging status
+  if (battery_found) {
+    char path[64];
+    snprintf(path, sizeof(path), "/sys/class/power_supply/%s/status",
+             battery_name);
+    std::string status = readStringFromFile(path);
+    return status == "Charging";
+  }
+
+  return false;
 }
 
 uint16_t get_battery_charge_state()
 {
   if (isChargerActive()) return CHARGE_STARTED;
   return CHARGE_NONE;
+}
+
+bool usbChargerLed()
+{
+  return isChargerActive();
 }
 
 void handle_battery_charge(uint32_t) {}
