@@ -57,6 +57,9 @@ static const unsigned char _icon_png[] = {
 };
 #endif
 
+extern volatile uint32_t rotencDt;
+static uint32_t last_encoder_tick;
+
 static bool app_running = false;
 
 static bool handleKeyEvent(const SDL_Event& event)
@@ -100,6 +103,8 @@ static bool handleKeyEvent(const SDL_Event& event)
 #if defined(ROTARY_ENCODER_NAVIGATION)
       if (event.type == SDL_KEYDOWN)
         rotencValue -= ROTARY_ENCODER_GRANULARITY;
+        rotencDt += SDL_GetTicks() - last_encoder_tick;
+        last_encoder_tick = SDL_GetTicks();
 #else
       if (keysGetSupported() & (1 << KEY_UP)) {
         key = KEY_UP;
@@ -112,6 +117,8 @@ static bool handleKeyEvent(const SDL_Event& event)
 #if defined(ROTARY_ENCODER_NAVIGATION)
       if (event.type == SDL_KEYDOWN)
         rotencValue += ROTARY_ENCODER_GRANULARITY;
+        rotencDt += SDL_GetTicks() - last_encoder_tick;
+        last_encoder_tick = SDL_GetTicks();
 #else
       if (keysGetSupported() & (1 << KEY_DOWN)) {
         key = KEY_DOWN;
@@ -329,28 +336,7 @@ int main(int argc, char* argv[])
     Uint64 start_ts = SDL_GetPerformanceCounter();
     if (!handleEvents()) break;
 
-//    SDL_Event event;
-//    while (SDL_PollEvent(&event)) {
-//      if (handleKeyEvent(event))
-//        continue;
-//
-//      if (event.type == SDL_QUIT) {
-//        app_running = false;
-//        break;
-//      }
-//
-//      if (event.type == SDL_WINDOWEVENT &&
-//          event.window.event == SDL_WINDOWEVENT_CLOSE) {
-//        app_running = false;
-//        break;
-//      }
-
-
-//    }
-
     if (!app_running) break;
-
-//    redraw();
 
     Uint64 end_ts = SDL_GetPerformanceCounter();
     float elapsed_ms =
@@ -380,10 +366,10 @@ uint16_t simuGetAnalog(uint8_t idx)
   if (idx < max_sticks) {
     // Return center position for all gimbal axes
     switch (idx){
-      case 0:return 2048;
-      case 1:return 2048;
-      case 2:return 2048;
-      case 3:return 2048;
+      case 0:return 2048; // CH1 (Roll)
+      case 1:return 2048; // CH2 (Pitch)
+      case 2:return 0;    // CH3 (Throttle)
+      case 3:return 2048; // CH4 (Yaw)
     }
   }
 
