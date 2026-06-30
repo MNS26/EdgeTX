@@ -2863,7 +2863,7 @@ void LvglWidgetFontPicker::build(lua_State *L)
 {
   if (h == LV_SIZE_CONTENT) h = 0;
   window = new Choice(
-      lvglManager->getCurrentParent(), {x, y, w, h}, STR_FONT_SIZES, 0, FONTS_COUNT - 1,
+      lvglManager->getCurrentParent(), {x, y, w, h}, STR_FONT_SIZES, 0, FONTS_COUNT - 2,
       [=]() { return FONT_INDEX(pcallGetIntVal(L, getFunction)); },
       [=](int val) { pcallSetIntVal(L, setFunction, val << 8u); });
 }

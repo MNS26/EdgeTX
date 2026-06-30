@@ -113,7 +113,7 @@ WidgetSettings::WidgetSettings(Widget* w) :
 
       case WidgetOption::TextSize:
         new Choice(
-            line, rect_t{}, STR_FONT_SIZES, 0, FONTS_COUNT - 1,
+            line, rect_t{}, STR_FONT_SIZES, 0, FONTS_COUNT - 2,
             [=]() -> int {  // getValue
               return widgetData->getUnsignedValue(optIdx);
             },
