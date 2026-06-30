@@ -102,7 +102,7 @@ static bool handleKeyEvent(const SDL_Event& event)
     case SDLK_UP:
 #if defined(ROTARY_ENCODER_NAVIGATION)
       if (event.type == SDL_KEYDOWN)
-        rotencValue -= ROTARY_ENCODER_GRANULARITY;
+        rotencValue += ROTARY_ENCODER_GRANULARITY;
         rotencDt += SDL_GetTicks() - last_encoder_tick;
         last_encoder_tick = SDL_GetTicks();
 #else
@@ -116,7 +116,7 @@ static bool handleKeyEvent(const SDL_Event& event)
     case SDLK_DOWN:
 #if defined(ROTARY_ENCODER_NAVIGATION)
       if (event.type == SDL_KEYDOWN)
-        rotencValue += ROTARY_ENCODER_GRANULARITY;
+        rotencValue -= ROTARY_ENCODER_GRANULARITY;
         rotencDt += SDL_GetTicks() - last_encoder_tick;
         last_encoder_tick = SDL_GetTicks();
 #else
