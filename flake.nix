@@ -144,8 +144,8 @@
         # ---- Firmware package ----
         mkFirmware =
           {
-            pcb,
-            pcrev ? "",
+            pcb ? "",
+            pcbrev ? "",
             autosource ? "ON",
             autoswitch ? "ON",
             curves ? "ON",
@@ -158,7 +158,7 @@
           let
             lower = pkgs.lib.strings.toLower;
             clean = s: builtins.replaceStrings [ "+" ] [ "p" ] s;
-          in "edgetx-firmware-${clean (lower pcb)}-${clean (lower (if pcrev != "" then pcrev else pcb))}" }:
+          in "edgetx-firmware-${clean (lower pcb)}-${clean (lower (if pcbrev != "" then pcbrev else pcb))}" }:
           let
             cmakeFlags = [
               "-DCMAKE_BUILD_TYPE=Release"
@@ -166,25 +166,17 @@
               "-DEdgeTX_SUPERBUILD=OFF"
               "-DNATIVE_BUILD=OFF"
               "-DUSE_UNSUPPORTED_TOOLCHAIN=ON"
-              "-DPCB=${pcb}"
-            ] ++ pkgs.lib.optionals (pcrev != "") [
-              "-DPCBREV=${pcrev}"
-            ] ++ pkgs.lib.optionals (autosource != "") [
               "-DAUTOSOURCE=${autosource}"
-            ] ++ pkgs.lib.optionals (autoswitch != "") [
               "-DAUTOSWITCH=${autoswitch}"
-            ] ++ pkgs.lib.optionals (curves != "") [
               "-DCURVES=${curves}"
-            ] ++ pkgs.lib.optionals (flightmodes != "") [
               "-DFLIGHT_MODES=${flightmodes}"
-            ] ++ pkgs.lib.optionals (gvars != "") [
               "-DGVARS=${gvars}"
-            ] ++ pkgs.lib.optionals (lua != "") [
               "-DLUA=${lua}"
-            ] ++ pkgs.lib.optionals (luacompiler != "") [
               "-DLUA_COMPILER=${luacompiler}"
-            ] ++ pkgs.lib.optionals (luamixer != "") [
               "-DLUA_MIXER=${luamixer}"
+              "-DPCB=${pcb}"
+            ] ++ pkgs.lib.optionals (pcbrev != "") [
+              "-DPCBREV=${pcbrev}"
             ];
           in
           pkgs.stdenv.mkDerivation {
@@ -262,6 +254,8 @@
             luamixer ? "ON",
             extraNativeBuildInputs ? [ ],
             extraBuildInputs ? [ ] ,
+            extraCmakeFlags ? [ ],
+            cmakeBuildTarget ? "simu",
           }:
           let
             pkgs = import nixpkgs {
@@ -287,34 +281,25 @@
               "-DCMAKE_TOOLCHAIN_FILE=cmake/toolchain/native.cmake"
               "-DEdgeTX_SUPERBUILD=OFF"
               "-DNATIVE_BUILD=ON"
-              "-DPCB=${pcb}"
               "-DCMAKE_TLS_VERIFY=OFF"
               "-DDISABLE_COMPANION=ON"
               "-DAUDIO=ON"
+              "-DAUTOSOURCE=${autosource}"
+              "-DAUTOSWITCH=${autoswitch}"
+              "-DBOOTLOADER=${bootloader}"
+              "-DCURVES=${curves}"
+              "-DFLIGHT_MODES=${flightmodes}"
+              "-DGVARS=${gvars}"
+              "-DLUA=${lua}"
+              "-DLUA_COMPILER=${luacompiler}"
+              "-DLUA_MIXER=${luamixer}"
+              "-DPCB=${pcb}"
             ] ++ pkgs.lib.optionals (pcbrev != "") [
               "-DPCBREV=${pcbrev}"
-            ] ++ pkgs.lib.optionals (autosource != "") [
-              "-DAUTOSOURCE=${autosource}"
-            ] ++ pkgs.lib.optionals (autoswitch != "") [
-              "-DAUTOSWITCH=${autoswitch}"
-            ] ++ pkgs.lib.optionals (bootloader != "") [
-              "-DBOOTLOADER=${bootloader}"
-            ] ++ pkgs.lib.optionals (curves != "") [
-              "-DCURVES=${curves}"
-            ] ++ pkgs.lib.optionals (flightmodes != "") [
-              "-DFLIGHT_MODES=${flightmodes}"
-            ] ++ pkgs.lib.optionals (gvars != "") [
-              "-DGVARS=${gvars}"
-            ] ++ pkgs.lib.optionals (lua != "") [
-              "-DLUA=${lua}"
-            ] ++ pkgs.lib.optionals (luacompiler != "") [
-              "-DLUA_COMPILER=${luacompiler}"
-            ] ++ pkgs.lib.optionals (luamixer != "") [
-              "-DLUA_MIXER=${luamixer}"
-            ] ++ nativeFcFlags;
+            ] ++ extraCmakeFlags ++ nativeFcFlags;
           in
           pkgs.stdenv.mkDerivation {
-            pname = "edgetx-simu";
+            pname = "edgetx-${cmakeBuildTarget}";
             version = "3.0.0";
             src = ./.;
 
@@ -385,20 +370,20 @@
 
             buildPhase = ''
               runHook preBuild
-              cmake --build build --target simu -j$(($NIX_BUILD_CORES-1))
+              cmake --build build --target ${cmakeBuildTarget} -j$(($NIX_BUILD_CORES-1))
               runHook postBuild
             '';
 
             installPhase = ''
               runHook preInstall
               mkdir -p $out/bin
-              cp build/simu $out/bin/
+              cp build/${cmakeBuildTarget} $out/bin/
               runHook postInstall
             '';
 
             enableParallelBuilding = true;
 
-            meta.mainProgram = "simu";
+            meta.mainProgram = "${cmakeBuildTarget}";
           };
         # ---- Companion + Standalone Simulator (Qt6) ----
         mkCompanion =
@@ -495,14 +480,25 @@
 
           edgetx-firmware-tx16s = mkFirmware {
             pcb = "X10";
-            pcrev = "TX16S";
+            pcbrev = "TX16S";
           };
 
-          edgetx-simu = mkSimu { };
+          edgetx-simu-tx16s = mkSimu {
+            pcb = "X10";
+            pcbrev = "TX16S";
+          };
+
+          edgetx-pi = mkSimu {
+            pcb = "PI";
+            pcbrev = "";
+            cmakeBuildTarget = "pi";
+          };
 
           edgetx-simu-pi = mkSimu {
             pcb = "PI";
             pcbrev = "";
+            cmakeBuildTarget = "standalone";
+            extraCmakeFlags = [ "-DPI_SIMU=ON" ];
           };
 
           edgetx-companion = mkCompanion { };
@@ -705,7 +701,18 @@
             program = let
               script = pkgs.writeShellScript "build-simu-pi" ''
                 exec nix build "path:${toString ./.}#edgetx-simu-pi" \
-                  --out-link simu-pi \
+                  --out-link edgetx-simu-pi \
+                  --impure "$@"
+              '';
+            in "${script}";
+          };
+
+          build-pi = {
+            type = "app";
+            program = let
+              script = pkgs.writeShellScript "build-pi" ''
+                exec nix build "path:${toString ./.}#edgetx-pi" \
+                  --out-link edgetx-pi \
                   --impure "$@"
               '';
             in "${script}";
@@ -731,6 +738,7 @@
             echo "  nix run .#build-companion  → builds companion, creates edgetx-companion/ symlink"
             echo "  nix run .#build-simu-aarch64 → cross-compiles simu for ARM, creates simu-aarch64/ symlink"
             echo "  nix run .#build-simu-pi      → builds SDL simu (Pi target), creates simu-pi/ symlink"
+            echo "  nix run .#build-pi           → builds Pi standalone, creates edgetx-pi/ symlink"
             echo "NOTE: --impure still needed (builtins.fetchGit for submodules)"
             echo "      FetchContent deps are pre-fetched — no --option sandbox false needed!"
             echo ""
