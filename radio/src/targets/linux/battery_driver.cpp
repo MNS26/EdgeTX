@@ -91,11 +91,9 @@ uint16_t getBatteryVoltage()
   if (!battery_found)
     return BATTERY_MAX * 10;
 
-  char path[128];
-  snprintf(path, sizeof(path), "/sys/class/power_supply/%s/voltage_now",
-           battery_name);
-
-  int64_t uv = readIntFromFile(path);
+  std::string path = std::string("/sys/class/power_supply/")
+    + battery_name + "/voltage_now";
+  int64_t uv = readIntFromFile(path.c_str());
   if (uv < 0)
     return BATTERY_MAX * 10;
 
@@ -106,19 +104,17 @@ bool isChargerActive()
 {
   // Check if AC adapter is present and online
   if (ac_found) {
-    char path[128];
-    snprintf(path, sizeof(path), "/sys/class/power_supply/%s/online",
-             ac_name);
-    int online = readIntFromFile(path);
+    std::string path = std::string("/sys/class/power_supply/")
+      + ac_name + "/online";
+    int online = readIntFromFile(path.c_str());
     if (online == 1) return true;
   }
 
   // Fall back to checking battery charging status
   if (battery_found) {
-    char path[128];
-    snprintf(path, sizeof(path), "/sys/class/power_supply/%s/status",
-             battery_name);
-    std::string status = readStringFromFile(path);
+    std::string path = std::string("/sys/class/power_supply/")
+      + battery_name + "/status";
+    std::string status = readStringFromFile(path.c_str());
     return status == "Charging";
   }
 
