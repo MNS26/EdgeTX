@@ -317,6 +317,10 @@ void boardOff()
 
 void hapticOff() {}
 
+#if !defined(HAPTIC_PWM)
+void hapticOn() {}
+#endif
+
 #if defined(HAS_HARDWARE_OPTIONS)
 HardwareOptions hardwareOptions;
 #endif

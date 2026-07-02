@@ -70,7 +70,11 @@ void audioInit();
 void hapticInit();
 void hapticDone();
 void hapticOff();
+#if defined(HAPTIC_PWM)
 void hapticOn(uint32_t pwmPercent);
+#else
+void hapticOn();
+#endif
 
 // BT driver
 #define BT_TX_FIFO_SIZE    64
