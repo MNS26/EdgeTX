@@ -630,6 +630,8 @@ FRESULT f_getfree(const TCHAR* path, DWORD* nclst, FATFS** fatfs)
 {
   // just fake that we always have some clusters free
   *nclst = 10;
+  static FATFS _fatfs = { .csize = 1 };
+  *fatfs = &_fatfs;
   return FR_OK;
 }
 

@@ -803,7 +803,11 @@ void DMAInit() {}
 
 // FatFs disk_ioctl stub
 #include "hal/fatfs_diskio.h"
-extern "C" DRESULT disk_ioctl(BYTE, BYTE, void*)
+extern "C" DRESULT disk_ioctl(BYTE pdrv, BYTE cmd, void* buff)
 {
-  return RES_PARERR;
+  if (cmd == GET_SECTOR_COUNT) {
+    *(DWORD*)buff = 1024 * 1024; // fake 1M sectors
+    return RES_OK;
+  }
+  return RES_OK;
 }
