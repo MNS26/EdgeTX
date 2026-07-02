@@ -105,7 +105,7 @@ elseif(PCB STREQUAL T22)
   include(targets/t22/CMakeLists.txt)
 elseif(PCB STREQUAL STM32H7S78_DK)
   include(targets/stm32h7s78-dk/CMakeLists.txt)
-elseif(PCB STREQUAL LINUX)
+elseif(PCB STREQUAL "LINUX")
   set(NATIVE_BUILD ON)
   include(targets/linux/CMakeLists.txt)
 elseif(PCB STREQUAL X9E OR PCB STREQUAL X9D+ OR PCB STREQUAL X9D OR PCB STREQUAL X7 OR PCB STREQUAL X9LITE OR PCB STREQUAL X9LITES OR PCB STREQUAL XLITE OR PCB STREQUAL XLITES)
@@ -162,7 +162,7 @@ add_custom_target(hardware_defs DEPENDS ${HW_DESC_JSON}.h)
 include_directories(targets/${TARGET_DIR} ${THIRDPARTY_DIR})
 
 if(NATIVE_BUILD)
-  if(PCB STREQUAL LINUX)
+  if(PCB STREQUAL "LINUX")
     include_directories(targets/linux)
   else()
     include_directories(targets/simu)
@@ -585,7 +585,7 @@ if(NATIVE_BUILD)
   add_dependencies(radiolib_native ${RADIO_DEPENDENCIES})
   set_property(TARGET radiolib_native PROPERTY POSITION_INDEPENDENT_CODE ON)
 
-  if(PCB STREQUAL LINUX)
+  if(PCB STREQUAL "LINUX")
     # radiolib_native_nosimu: same sources as radiolib_native, compiled without -DSIMU
     # for the real-hardware linux target
     add_library(radiolib_native_nosimu OBJECT EXCLUDE_FROM_ALL
