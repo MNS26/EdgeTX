@@ -430,7 +430,7 @@ const char * sdMoveFile(const char * srcFilename, const char * srcDir, const cha
   return nullptr;
 }
 
-#if !defined(SIMU) || defined(SIMU_DISKIO)
+#if (!defined(SIMU) && !defined(RADIO_LINUX)) || defined(SIMU_DISKIO)
 uint32_t sdGetNoSectors()
 {
   static DWORD noSectors = 0;
@@ -462,7 +462,7 @@ uint32_t sdGetFreeKB()
 
 bool sdIsFull() { return sdGetFreeKB() < SDCARD_MIN_FREE_SPACE_MB * 1024; }
 
-#else  // #if !defined(SIMU) || defined(SIMU_DISKIO)
+#else  // #if (!defined(SIMU) && !defined(RADIO_LINUX)) || defined(SIMU_DISKIO)
 
 uint32_t sdGetNoSectors()
 {
