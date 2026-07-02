@@ -488,17 +488,17 @@
             pcbrev = "TX16S";
           };
 
-          edgetx-pi = mkSimu {
-            pcb = "PI";
+          edgetx-linux = mkSimu {
+            pcb = "LINUX";
             pcbrev = "";
-            cmakeBuildTarget = "pi";
+            cmakeBuildTarget = "linux";
           };
 
-          edgetx-simu-pi = mkSimu {
-            pcb = "PI";
+          edgetx-simu-linux = mkSimu {
+            pcb = "LINUX";
             pcbrev = "";
             cmakeBuildTarget = "standalone";
-            extraCmakeFlags = [ "-DPI_SIMU=ON" ];
+            extraCmakeFlags = [ "-DLINUX_SIMU=ON" ];
           };
 
           edgetx-companion = mkCompanion { };
@@ -518,7 +518,7 @@
                 (final: prev: {
                   sdl2-compat = (prev.sdl2-compat.override { x11Support = false; }).overrideAttrs (old: {
                     cmakeFlags = (old.cmakeFlags or []) ++ [
-                      #"-DSDL2COMPAT_X11=OFF"
+                      "-DSDL2COMPAT_X11=OFF"
                     ];
                   });
                 })
@@ -696,23 +696,23 @@
               '';
             in "${script}";
           };
-          build-simu-pi = {
+          build-simu-linux = {
             type = "app";
             program = let
-              script = pkgs.writeShellScript "build-simu-pi" ''
-                exec nix build "path:${toString ./.}#edgetx-simu-pi" \
-                  --out-link edgetx-simu-pi \
+              script = pkgs.writeShellScript "build-simu-linux" ''
+                exec nix build "path:${toString ./.}#edgetx-simu-linux" \
+                  --out-link edgetx-simu-linux \
                   --impure "$@"
               '';
             in "${script}";
           };
 
-          build-pi = {
+          build-linux = {
             type = "app";
             program = let
-              script = pkgs.writeShellScript "build-pi" ''
-                exec nix build "path:${toString ./.}#edgetx-pi" \
-                  --out-link edgetx-pi \
+              script = pkgs.writeShellScript "build-linux" ''
+                exec nix build "path:${toString ./.}#edgetx-linux" \
+                  --out-link edgetx-linux \
                   --impure "$@"
               '';
             in "${script}";
@@ -737,8 +737,8 @@
             echo "  nix run .#build-simu       → builds SDL simu, creates simu/ symlink"
             echo "  nix run .#build-companion  → builds companion, creates edgetx-companion/ symlink"
             echo "  nix run .#build-simu-aarch64 → cross-compiles simu for ARM, creates simu-aarch64/ symlink"
-            echo "  nix run .#build-simu-pi      → builds SDL simu (Pi target), creates simu-pi/ symlink"
-            echo "  nix run .#build-pi           → builds Pi standalone, creates edgetx-pi/ symlink"
+            echo "  nix run .#build-simu-linux      → builds SDL simu (Linux target), creates simu-linux/ symlink"
+            echo "  nix run .#build-linux           → builds Linux standalone, creates edgetx-linux/ symlink"
             echo "NOTE: --impure still needed (builtins.fetchGit for submodules)"
             echo "      FetchContent deps are pre-fetched — no --option sandbox false needed!"
             echo ""

@@ -1,7 +1,7 @@
 include(CMakeForceCompiler)
 include(Bitmaps)
 
-set(PCB_TYPES X9LITE X9LITES X7 XLITE XLITES X9D X9D+ X9E X10 X12S PL18 T15PRO ST16 PA01 TX15 TX16SMK3 T22 PI)
+set(PCB_TYPES X9LITE X9LITES X7 XLITE XLITES X9D X9D+ X9E X10 X12S PL18 T15PRO ST16 PA01 TX15 TX16SMK3 T22 LINUX)
 set(RADIO_LANGUAGES CN CZ DA DE EN ES FI FR HE HU IT JP KO NL PL PT RU SE SK TW UA)
 set(TTS_LANGUAGES CN CZ DA DE EN ES FI FR HE HU IT JP KO NL PL PT RU SE SK TW UA)
 
@@ -105,9 +105,9 @@ elseif(PCB STREQUAL T22)
   include(targets/t22/CMakeLists.txt)
 elseif(PCB STREQUAL STM32H7S78_DK)
   include(targets/stm32h7s78-dk/CMakeLists.txt)
-elseif(PCB STREQUAL PI)
+elseif(PCB STREQUAL LINUX)
   set(NATIVE_BUILD ON)
-  include(targets/pi/CMakeLists.txt)
+  include(targets/linux/CMakeLists.txt)
 elseif(PCB STREQUAL X9E OR PCB STREQUAL X9D+ OR PCB STREQUAL X9D OR PCB STREQUAL X7 OR PCB STREQUAL X9LITE OR PCB STREQUAL X9LITES OR PCB STREQUAL XLITE OR PCB STREQUAL XLITES)
   include(targets/taranis/CMakeLists.txt)
 else()
@@ -162,8 +162,8 @@ add_custom_target(hardware_defs DEPENDS ${HW_DESC_JSON}.h)
 include_directories(targets/${TARGET_DIR} ${THIRDPARTY_DIR})
 
 if(NATIVE_BUILD)
-  if(PCB STREQUAL PI)
-    include_directories(targets/pi)
+  if(PCB STREQUAL LINUX)
+    include_directories(targets/linux)
   else()
     include_directories(targets/simu)
   endif()
@@ -585,8 +585,23 @@ if(NATIVE_BUILD)
   add_dependencies(radiolib_native ${RADIO_DEPENDENCIES})
   set_property(TARGET radiolib_native PROPERTY POSITION_INDEPENDENT_CODE ON)
 
-  if(PCB STREQUAL PI)
-    add_subdirectory(targets/pi)
+  if(PCB STREQUAL LINUX)
+    # radiolib_native_nosimu: same sources as radiolib_native, compiled without -DSIMU
+    # for the real-hardware linux target
+    add_library(radiolib_native_nosimu OBJECT EXCLUDE_FROM_ALL
+      ${RADIOLIB_NATIVE_SRC}
+    )
+    target_compile_options(radiolib_native_nosimu PUBLIC -DNATIVE_THREADS -DRADIO_LINUX)
+    target_sources(radiolib_native_nosimu PUBLIC
+      os/async_native.cpp
+      os/sleep_native.cpp
+      os/task_native.cpp
+      os/time_native.cpp
+      os/timer_native.cpp
+    )
+    add_dependencies(radiolib_native_nosimu ${RADIO_DEPENDENCIES})
+    set_property(TARGET radiolib_native_nosimu PROPERTY POSITION_INDEPENDENT_CODE ON)
+    add_subdirectory(targets/linux)
   else()
     add_subdirectory(targets/simu)
   endif()

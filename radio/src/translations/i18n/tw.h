@@ -71,7 +71,7 @@
 #define TR_QM_LS_MON                    "邏輯開關\n查看器"
 #define TR_QM_STATS                     "統計"
 #define TR_QM_DEBUG                     "Debug"
-#if defined(RADIO_PI)
+#if defined(RADIO_LINUX)
 #warning TRANSLATE THIS
 #define TR_QM_WINDOW                    "Window"
 #define TR_QM_EXIT                      "Shutdown"

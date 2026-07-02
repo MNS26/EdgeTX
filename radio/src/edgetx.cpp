@@ -21,7 +21,7 @@
 
 #include "os/sleep.h"
 #include "os/time.h"
-#if !defined(SIMU)
+#if !defined(SIMU) && !defined(RADIO_LINUX)
 #include "stm32_ws2812.h"
 #include "boards/generic_stm32/rgb_leds.h"
 #include "stm32_hal.h"
@@ -72,7 +72,7 @@
   #include "csd203_sensor.h"
 #endif
 
-#if !defined(SIMU)
+#if !defined(SIMU) && !defined(RADIO_LINUX)
 #include <malloc.h>
 #endif
 
@@ -131,7 +131,7 @@ void toggleLatencySwitch()
 
 void checkValidMCU(void)
 {
-#if !defined(SIMU) && !defined(BOOT)
+#if !defined(SIMU) && !defined(RADIO_LINUX) && !defined(BOOT)
   // Checks the radio MCU type matches intended firmware type
   uint32_t idcode = DBGMCU->IDCODE & 0xFFF;
 
@@ -1146,7 +1146,7 @@ void edgeTxClose(uint8_t shutdown)
 
   if (shutdown) {
     pulsesStop();
-#if !defined(SIMU)
+#if !defined(SIMU) && !defined(RADIO_LINUX)
     // Audio task has been stopped so this will not play
     // when closing the simulator
     AUDIO_BYE();
@@ -1654,7 +1654,7 @@ void edgeTxInit()
 extern "C" void initialise_monitor_handles();
 #endif
 
-#if defined(SIMU)
+#if defined(SIMU) || defined(RADIO_LINUX)
 void simuMain()
 #else
 int main()
@@ -1669,7 +1669,7 @@ int main()
   SEGGER_SYSVIEW_Start();
 #endif
 
-#if !defined(SIMU)
+#if !defined(SIMU) && !defined(RADIO_LINUX)
   /* Ensure all priority bits are assigned as preemption priority bits. */
   NVIC_SetPriorityGrouping( NVIC_PRIORITYGROUP_4 );
 #endif
@@ -1720,7 +1720,7 @@ int pwrDelayToYaml(int delay)
 }
 #endif
 
-#if !defined(SIMU)
+#if !defined(SIMU) && !defined(RADIO_LINUX)
 #if defined(PWR_BUTTON_PRESS)
 
 inline uint32_t PWR_PRESS_SHUTDOWN_DELAY()
@@ -1960,11 +1960,11 @@ uint32_t pwrCheck()
   return e_power_off;
 }
 #endif  // defined(PWR_BUTTON_PRESS)
-#endif  // !defined(SIMU)
+#endif  // !defined(SIMU) && !defined(RADIO_LINUX)
 
 uint32_t availableMemory()
 {
-#if defined(SIMU)
+#if defined(SIMU) || defined(RADIO_LINUX)
   return 1000;
 #else
   extern unsigned char *heap;

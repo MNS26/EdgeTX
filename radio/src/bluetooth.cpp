@@ -333,7 +333,7 @@ void Bluetooth::receiveTrainer()
 #if defined(PCBX9E)
 void Bluetooth::wakeup(void)
 {
-#if !defined(SIMU)
+#if !defined(SIMU) && !defined(RADIO_LINUX)
   if (!g_eeGeneral.bluetoothMode) {
     if (state != BLUETOOTH_INIT) {
       bluetoothDisable();

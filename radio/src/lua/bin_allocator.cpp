@@ -91,7 +91,7 @@ class BinAllocator
   int avail() { return freeCount * SIZE_SLOT; }
 };
 
-#if defined(SIMU)
+#if defined(SIMU) || defined(RADIO_LINUX)
   typedef BinAllocator<40,300> BinAllocator_slots1;
   typedef BinAllocator<80,100> BinAllocator_slots2;
 #else

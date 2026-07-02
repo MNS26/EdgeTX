@@ -48,7 +48,7 @@
 #include "view_statistics.h"
 #include "view_text.h"
 
-#if defined(RADIO_PI)
+#if defined(RADIO_LINUX)
 // Cleanest way i could think of
 #include "targets/simu/simu.h"
 
@@ -148,7 +148,7 @@ const QMMainDef qmTopItems[] = {
   },
   { ICON_STATS, STR_DEF(STR_QM_STATS), STR_DEF(STR_MAIN_MENU_STATISTICS), QM_ACTION, QM_NONE, nullptr, []() { QuickMenu::openPage(QM_TOOLS_STATS); }},
   { ICON_RADIO_VERSION, STR_DEF(STR_QM_ABOUT), STR_DEF(STR_MAIN_MENU_ABOUT_EDGETX), QM_ACTION, QM_NONE, nullptr, []() { QuickMenu::openPage(QM_RADIO_VERSION); }},
-#if defined(RADIO_PI)
+#if defined(RADIO_LINUX)
   { ICON_SHUTDOWN, STR_DEF(STR_QM_WINDOW), STR_DEF(STR_QM_WINDOW), QM_SUBMENU, QM_NONE, windowMenuItems},
 #endif
   // Not displayed - search / run only
@@ -204,7 +204,7 @@ const QMMainDef qmTopItems[] = {
   { ICON_RADIO, STR_DEF(STR_QM_RADIO_SETUP), STR_DEF(STR_MAIN_MENU_RADIO_SETTINGS), QM_SUBMENU, QM_NONE, radioMenuItems},
   { ICON_THEME, STR_DEF(STR_QM_UI_SETUP), STR_DEF(STR_MAIN_MENU_SCREEN_SETTINGS), QM_SUBMENU, QM_NONE, screensMenuItems},
   { ICON_RADIO_TOOLS, STR_DEF(STR_QM_TOOLS), STR_DEF(STR_QM_TOOLS), QM_SUBMENU, QM_NONE, toolsMenuItems},
-#if defined(RADIO_PI)
+#if defined(RADIO_LINUX)
   { ICON_BTN_CLOSE, STR_DEF(STR_QM_WINDOW), STR_DEF(STR_QM_WINDOW), QM_SUBMENU, QM_NONE, windowMenuItems},
 #endif
   { EDGETX_ICONS_COUNT }

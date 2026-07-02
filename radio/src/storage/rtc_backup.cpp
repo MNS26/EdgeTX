@@ -36,7 +36,7 @@ PACK(struct RamBackupUncompressed {
 
 Backup::RamBackupUncompressed ramBackupUncompressed __DMA;
 
-#if defined(SIMU)
+#if defined(SIMU) || defined(RADIO_LINUX)
 RamBackup _ramBackup;
 RamBackup * ramBackup = &_ramBackup;
 #else

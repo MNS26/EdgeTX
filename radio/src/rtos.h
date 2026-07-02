@@ -25,7 +25,7 @@
 extern "C++" {
 #endif
 
-#if defined(SIMU)
+#if defined(SIMU) || defined(RADIO_LINUX)
 
   static inline void RTOS_START() {}
 

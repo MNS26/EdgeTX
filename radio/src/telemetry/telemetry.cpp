@@ -31,7 +31,7 @@
 
 #include <list>
 
-#if !defined(SIMU)
+#if !defined(SIMU) && !defined(RADIO_LINUX)
   #include <FreeRTOS/include/FreeRTOS.h>
   #include <FreeRTOS/include/timers.h>
 #endif

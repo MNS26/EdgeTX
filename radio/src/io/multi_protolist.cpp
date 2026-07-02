@@ -65,7 +65,7 @@ constexpr uint32_t MULTI_PROTOLIST_START_TIMEOUT = 3000; // 3s
 
 MultiRfProtocols::MultiRfProtocols(unsigned int moduleIdx) : moduleIdx(moduleIdx)
 {
-#if defined(SIMU)
+#if defined(SIMU) || defined(RADIO_LINUX)
   // prevent scanning from starting on simu
   fillBuiltinProtos();
 #endif

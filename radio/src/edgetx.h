@@ -29,7 +29,7 @@
 #include "switches.h"
 #include "board.h"
 
-#if !defined(SIMU)
+#if !defined(SIMU) && !defined(RADIO_LINUX)
 #include "usbd_msc_conf.h"
 #endif
 
@@ -174,7 +174,7 @@ struct CustomFunctionsContext {
 #include "gui.h"
 #endif
 
-#if !defined(SIMU)
+#if !defined(SIMU) && !defined(RADIO_LINUX)
   #define assert(x)
   #if !defined(DEBUG)
     #define printf printf_not_allowed
@@ -806,7 +806,7 @@ enum ClipboardType {
   CLIPBOARD_TYPE_SD_FILE,
 };
 
-#if defined(SIMU)
+#if defined(SIMU) || defined(RADIO_LINUX)
   #define CLIPBOARD_PATH_LEN 1024
 #else
   #define CLIPBOARD_PATH_LEN 32

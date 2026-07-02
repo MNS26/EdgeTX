@@ -64,7 +64,7 @@
     #else
         #define LV_MEM 2
     #endif
-    #if defined(SIMU)
+    #if defined(SIMU) || defined(RADIO_LINUX)
         #define LV_MEM_SIZE (LV_MEM * 2 * 1024U * 1024U)  /*[bytes]*/
     #else
         #define LV_MEM_SIZE (LV_MEM * 1024U * 1024U)      /*[bytes]*/
@@ -532,7 +532,7 @@
 /*Support bidirectional texts. Allows mixing Left-to-Right and Right-to-Left texts.
  *The direction will be processed according to the Unicode Bidirectional Algorithm:
  *https://www.w3.org/International/articles/inline-bidi-markup/uba-basics*/
-#if defined(SIMU)
+#if defined(SIMU) || defined(RADIO_LINUX)
 #define LV_USE_BIDI 1
 #else
 #define LV_USE_BIDI TRANSLATION_IS_RTL

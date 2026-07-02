@@ -21,7 +21,7 @@
 
 #include <stdio.h>
 #include <stdlib.h>
-#if !defined(SIMU)
+#if !defined(SIMU) && !defined(RADIO_LINUX)
 #include <unistd.h>
 #endif
 
@@ -163,7 +163,7 @@ void initFontBuffers()
   sz += getSize(fontTable);
 
   // Allocate buffer and assign to fonts
-#if defined(SIMU)
+#if defined(SIMU) || defined(RADIO_LINUX)
   uint8_t* b = (uint8_t*)malloc(sz);
 #else
   uint8_t* b = (uint8_t*)sbrk(sz);
@@ -293,7 +293,7 @@ void initFontBuffers()
   }
 
   // Allocate buffer and assign to fonts
-#if defined(SIMU)
+#if defined(SIMU) || defined(RADIO_LINUX)
   uint8_t* b = (uint8_t*)malloc(sz);
 #else
   uint8_t* b = (uint8_t*)sbrk(sz);

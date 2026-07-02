@@ -27,4 +27,15 @@ _wasi_sdk_fetch
 
 output/
 .devcontainer/devcontainer-lock.json
-simu-output/**
+simu-radio/
+simu-radio/**
+firmware
+imgui.ini
+result*
+reuslt/**
+simu-pi
+.direnv/
+.direnv/*
+.direnv/**
+out/**
+radio-**/

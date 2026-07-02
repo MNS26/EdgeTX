@@ -366,7 +366,7 @@ void logsWrite()
     error_displayed = nullptr;
     logsClose();
     
-    #if !defined(SIMU)
+    #if !defined(SIMU) && !defined(RADIO_LINUX)
     loggingTimerStop();
     #endif
   }

@@ -19,7 +19,7 @@
  * GNU General Public License for more details.
  */
 
-#if !defined(SIMU)
+#if !defined(SIMU) && !defined(RADIO_LINUX)
 #include "stm32_exti_driver.h"
 #include "stm32_hal_ll.h"
 #endif
@@ -334,7 +334,7 @@ static const etx_serial_init crsfSerialParams = {
   .polarity = ETX_Pol_Normal,
 };
 
-#if !defined(SIMU)
+#if !defined(SIMU) && !defined(RADIO_LINUX)
 
 #if defined(INTERNAL_MODULE_CRSF)
 static void _crsf_intmodule_frame_received(void*)
@@ -388,7 +388,7 @@ static void* crossfireInit(uint8_t module)
       auto& rx_count = getTelemetryRxBufferCount(INTERNAL_MODULE);
       rx_count = 0;
 
-#if !defined(SIMU)
+#if !defined(SIMU) && !defined(RADIO_LINUX)
       if (drv && ctx && drv->setIdleCb) {
         drv->setIdleCb(ctx, _crsf_intmodule_frame_received, nullptr);
       }
@@ -409,7 +409,7 @@ static void* crossfireInit(uint8_t module)
       auto& rx_count = getTelemetryRxBufferCount(EXTERNAL_MODULE);
       rx_count = 0;
 
-#if !defined(SIMU)
+#if !defined(SIMU) && !defined(RADIO_LINUX)
       if (drv && ctx && drv->setIdleCb) {
         drv->setIdleCb(ctx, _soft_irq_trigger, &mod_st->rx);
 #if defined(TELEMETRY_USE_CUSTOM_EXTI)
@@ -442,7 +442,7 @@ static void crossfireDeInit(void* ctx)
   memset(&crossfireModuleStatus[modulePortGetModule(mod_st)], 0,
          sizeof(CrossfireModuleStatus));
 
-#if !defined(SIMU) && defined(HARDWARE_EXTERNAL_MODULE)
+#if !defined(SIMU) && !defined(RADIO_LINUX) && defined(HARDWARE_EXTERNAL_MODULE)
   if (mod_st && (modulePortGetModule(mod_st) == EXTERNAL_MODULE)) {
     auto drv = modulePortGetSerialDrv(mod_st->rx);
     auto ctx = modulePortGetCtx(mod_st->rx);

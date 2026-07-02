@@ -21,7 +21,7 @@
 
 #include "edgetx.h"
 
-#if defined(SIMU)
+#if defined(SIMU) || defined(RADIO_LINUX)
 #define dumpPrintf(...) debugPrintf(__VA_ARGS__)
 #else
 #define dumpPrintf(...) dbgSerialPrintf(__VA_ARGS__)

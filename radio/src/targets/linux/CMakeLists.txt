@@ -1,8 +1,8 @@
 # Configuration part — runs during include() from parent scope
-if(NOT PI_BUILD)
-  message(STATUS "Configuring Pi target")
-  set(FLAVOUR pi)
-  set(TARGET_DIR pi)
+if(NOT LINUX_BUILD)
+  message(STATUS "Configuring Linux target")
+  set(FLAVOUR linux)
+  set(TARGET_DIR linux)
   set(GUI_DIR colorlcd)
   set(BITMAPS_DIR 800x480)
   set(CPU_TYPE STM32F4)
@@ -32,7 +32,7 @@ if(NOT PI_BUILD)
   add_definitions(-DSOFTWARE_VOLUME)
   add_definitions(-DRTCLOCK)
 
-  set(PI_BUILD TRUE)
+  set(LINUX_BUILD TRUE)
 
   # Module/IO source files needed by colorlcd GUI
   set(SRC ${SRC}
@@ -42,7 +42,7 @@ if(NOT PI_BUILD)
     io/bootloader_flash.cpp
   )
 
-  message(STATUS "Pi target GUI_DIR=${GUI_DIR}")
+  message(STATUS "Linux target GUI_DIR=${GUI_DIR}")
   return()
 endif()
 
@@ -67,12 +67,12 @@ endif()
 set(CMAKE_C_FLAGS "${CMAKE_C_FLAGS} ${WARNING_FLAGS}")
 set(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} ${WARNING_FLAGS}")
 
-# Driver files shared by both pi and standalone targets
-set(PI_DRIVERS
+# Driver files shared by both linux and standalone (simu) targets
+set(LINUX_DRIVERS
   board.cpp
   touch_driver.cpp
   battery_driver.cpp
-  pi_simulib.cpp
+  linux_simulib.cpp
   ../simu/simufatfs.cpp
   ../simu/simudisk.cpp
   ../simu/simulcd.cpp
@@ -93,7 +93,7 @@ AddHWGenTarget(${HW_DESC_JSON} simu_keys simu_keys.inc)
 AddHWGenTarget(${HW_DESC_JSON} simu_switches simu_switches.inc)
 AddHWGenTarget(${HW_DESC_JSON} hal_adc_inputs hal_adc_inputs.inc)
 
-set(PI_DRIVERS ${PI_DRIVERS}
+set(LINUX_DRIVERS ${LINUX_DRIVERS}
   ${CMAKE_CURRENT_BINARY_DIR}/simu_keys.inc
   ${CMAKE_CURRENT_BINARY_DIR}/simu_switches.inc
   ${CMAKE_CURRENT_BINARY_DIR}/hal_adc_inputs.inc
@@ -101,26 +101,19 @@ set(PI_DRIVERS ${PI_DRIVERS}
 
 include_directories(${CMAKE_CURRENT_BINARY_DIR})
 
-# Pack all shared driver sources into an object lib
-add_library(pi_drivers OBJECT EXCLUDE_FROM_ALL
-  ${PI_DRIVERS}
+# Pack all shared driver sources into an object lib (compiled with -DSIMU from radiolib_native)
+add_library(linux_drivers OBJECT EXCLUDE_FROM_ALL
+  ${LINUX_DRIVERS}
 )
 
-get_property(PI_SRC_OPTIONS
+get_property(LINUX_SRC_OPTIONS
   TARGET radiolib_native
   PROPERTY INTERFACE_COMPILE_OPTIONS
 )
 
-target_compile_options(pi_drivers PRIVATE ${PI_SRC_OPTIONS})
-set_property(TARGET pi_drivers PROPERTY POSITION_INDEPENDENT_CODE ON)
-add_dependencies(pi_drivers bm800_bitmaps)
-
-# Combine radiolib_native + pi_drivers
-set(PI_SRC
-  $<TARGET_OBJECTS:radiolib_native>
-  $<TARGET_OBJECTS:pi_drivers>
-)
-set(PI_SRC ${PI_SRC} PARENT_SCOPE)
+target_compile_options(linux_drivers PRIVATE ${LINUX_SRC_OPTIONS})
+set_property(TARGET linux_drivers PROPERTY POSITION_INDEPENDENT_CODE ON)
+add_dependencies(linux_drivers bm800_bitmaps)
 
 # Image assets (only once)
 add_png_target(image_assets "assets/images/*.png")
@@ -128,44 +121,46 @@ add_png_target(image_assets "assets/images/*.png")
 # STB
 set(STB_DIR ${RADIO_SRC_DIR}/thirdparty/stb)
 
-# Real hardware sources (compiled only for the pi executable)
-set(PI_HARDWARE_SOURCES
+# Real hardware sources (compiled only for the linux executable, without -DSIMU)
+set(LINUX_HARDWARE_SOURCES
   adc_driver.cpp
   ads1115_driver.cpp
   mcp23017_driver.cpp
-  pi_input.cpp
+  linux_input.cpp
   switch_driver.cpp
 )
 
-# Pi standalone executable (no ImGui, direct SDL — real hardware on Pi)
-add_executable(pi
+# Linux standalone executable (no ImGui, direct SDL — real hardware on Linux)
+add_executable(linux
   EXCLUDE_FROM_ALL
-  ${PI_SRC}
-  ${PI_HARDWARE_SOURCES}
+  $<TARGET_OBJECTS:radiolib_native_nosimu>
+  $<TARGET_OBJECTS:linux_drivers>
+  ${LINUX_HARDWARE_SOURCES}
   ../simu/simuaudio.cpp
   ../simu/display.cpp
   ../simu/arg_parser.cpp
-  sdl_pi.cpp
+  sdl_linux.cpp
 )
 
-target_compile_options(pi PUBLIC -DSIMU -DHARDWARE_REAL_INPUTS)
+target_compile_options(linux PUBLIC -DRADIO_LINUX -DHARDWARE_REAL_INPUTS)
 if(USB_CHARGER)
-  target_compile_options(pi PUBLIC -DUSB_CHARGER)
+  target_compile_options(linux PUBLIC -DUSB_CHARGER)
   target_compile_options(radiolib_native PUBLIC -DUSB_CHARGER)
 endif()
-target_include_directories(pi PUBLIC ${STB_DIR})
-target_link_libraries(pi PRIVATE SDL2::SDL2)
-add_dependencies(pi image_assets bm800_bitmaps yaml_data)
+target_include_directories(linux PUBLIC ${STB_DIR})
+target_link_libraries(linux PRIVATE SDL2::SDL2)
+add_dependencies(linux image_assets bm800_bitmaps yaml_data)
 
 # STB
-target_include_directories(pi PUBLIC ${STB_DIR})
+target_include_directories(linux PUBLIC ${STB_DIR})
 
-# Pi simu executable (ImGui chrome, for debugging — simu inputs only)
-option(PI_SIMU "Build pi simu with ImGui chrome" OFF)
-if(PI_SIMU)
+# Linux simu executable (ImGui chrome, for debugging — simu inputs only)
+option(LINUX_SIMU "Build linux simu with ImGui chrome" OFF)
+if(LINUX_SIMU)
   add_executable(standalone
     EXCLUDE_FROM_ALL
-    ${PI_SRC}
+    $<TARGET_OBJECTS:radiolib_native>
+    $<TARGET_OBJECTS:linux_drivers>
     simu_input.cpp
     ../simu/adc_driver.cpp
     ../simu/switch_driver.cpp
@@ -177,7 +172,6 @@ if(PI_SIMU)
     ../simu/sdl_simu.cpp
   )
 
-#  target_compile_options(standalone PUBLIC -DSIMU)
   if(USB_CHARGER)
     target_compile_options(standalone PUBLIC -DUSB_CHARGER)
   endif()

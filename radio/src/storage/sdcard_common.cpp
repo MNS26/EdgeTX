@@ -27,7 +27,7 @@
 
 #include "hal/abnormal_reboot.h"
 
-#if defined(SIMU)
+#if defined(SIMU) || defined(RADIO_LINUX)
 extern bool simuCreateDefaultSettings;
 #endif
 

@@ -307,7 +307,7 @@ void MultiFirmwareUpdateDriver::leaveProgMode()
 const char* MultiFirmwareUpdateDriver::flashFirmware(
     FIL* file, const char* label, ProgressHandler progressHandler)
 {
-#if defined(SIMU)
+#if defined(SIMU) || defined(RADIO_LINUX)
   for (uint16_t i = 0; i < 100; i++) {
     progressHandler(label, STR_WRITING, i, 100);
     sleep_ms(30);

@@ -71,7 +71,7 @@
 #define TR_QM_LS_MON                    "LS\nMonitor"
 #define TR_QM_STATS                     "Statistics"
 #define TR_QM_DEBUG                     "Debug"
-#if defined(RADIO_PI)
+#if defined(RADIO_LINUX)
 #define TR_QM_WINDOW                    "Window"
 #define TR_QM_EXIT                      "Shutdown"
 #define TR_QM_MINIMIZE                  "Minimize"

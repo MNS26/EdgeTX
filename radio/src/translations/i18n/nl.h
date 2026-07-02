@@ -74,7 +74,7 @@
 #define TR_QM_STATS                     "Statistics"
 #define TR_QM_DEBUG                     "Debug"
 
-#if defined(RADIO_PI)
+#if defined(RADIO_LINUX)
 #define TR_QM_WINDOW                    "Venster"
 #define TR_QM_EXIT                      "Sluiten"
 #define TR_QM_MINIMIZE                  "Minimaliseren"

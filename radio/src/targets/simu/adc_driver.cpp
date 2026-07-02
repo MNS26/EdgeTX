@@ -38,7 +38,7 @@ uint16_t getLuxSensorValue()
   return anaIn(adcGetInputOffset(ADC_INPUT_LUX));
 }
 
-#if !defined(RADIO_PI)
+#if !defined(RADIO_LINUX)
 uint16_t getBatteryVoltage()
 {
   if (adcGetMaxInputs(ADC_INPUT_VBAT) < 1) return 0;

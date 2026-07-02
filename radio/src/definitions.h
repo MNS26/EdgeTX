@@ -60,7 +60,7 @@ typedef const char* (*STR_TYP)();
 #endif
 
 #if !defined(__ALIGNED)
-#if defined(SIMU)
+#if defined(SIMU) || defined(RADIO_LINUX)
   #define __ALIGNED(x)
   #define __SECTION_USED(s)
 #else
@@ -75,13 +75,13 @@ typedef const char* (*STR_TYP)();
   #define PACK(__Declaration__) __pragma( pack(push, 1) ) __Declaration__ __pragma( pack(pop) )
 #endif
 
-#if defined(SIMU)
+#if defined(SIMU) || defined(RADIO_LINUX)
   #define PACK_NOT_SIMU(__Declaration__) __Declaration__
 #else
   #define PACK_NOT_SIMU(__Declaration__) PACK(__Declaration__)
 #endif
 
-#if defined(SIMU)
+#if defined(SIMU) || defined(RADIO_LINUX)
   #define CONVERT_PTR_UINT(x) ((uint32_t)(uint64_t)(x))
   #define CONVERT_UINT_PTR(x) ((uint32_t*)(uint64_t)(x))
 #else

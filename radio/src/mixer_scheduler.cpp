@@ -29,7 +29,7 @@
 
 bool mixerSchedulerWaitForTrigger(uint8_t timeoutMs)
 {
-#if !defined(SIMU)
+#if !defined(SIMU) && !defined(RADIO_LINUX)
   uint32_t ulNotificationValue;
   const TickType_t xMaxBlockTime = pdMS_TO_TICKS( timeoutMs );
 
@@ -53,7 +53,7 @@ bool mixerSchedulerWaitForTrigger(uint8_t timeoutMs)
 #endif
 }
 
-#if !defined(SIMU)
+#if !defined(SIMU) && !defined(RADIO_LINUX)
 
 // Global trigger flag
 

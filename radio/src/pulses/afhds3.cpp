@@ -1018,7 +1018,7 @@ void ProtoState::resetConfig(uint8_t version)
 void ProtoState::applyConfigFromModel()
 {
   uint8_t version = 0;
-#if defined(SIMU)
+#if defined(SIMU) || defined(RADIO_LINUX)
   // TODO: work out why this is not initialised in some cases
   if (moduleData == nullptr) return;
 #endif

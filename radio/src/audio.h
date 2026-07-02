@@ -81,14 +81,14 @@ constexpr uint8_t AUDIO_FILENAME_MAXLEN = (AUDIO_LUA_FILENAME_MAXLEN > AUDIO_MOD
 #define AUDIO_BUFFER_SIZE              (AUDIO_SAMPLE_RATE*AUDIO_BUFFER_DURATION/1000)
 
 #if !defined(AUDIO_SAMPLE_FMT)
-  #if defined(SIMU) || defined(AUDIO_SPI)
+  #if defined(SIMU) || defined(RADIO_LINUX) || defined(AUDIO_SPI)
     #define AUDIO_SAMPLE_FMT AUDIO_SAMPLE_FMT_S16
   #else
     #define AUDIO_SAMPLE_FMT AUDIO_SAMPLE_FMT_U16
   #endif
 #endif
 
-#if defined(SIMU)
+#if defined(SIMU) || defined(RADIO_LINUX)
   #define AUDIO_BUFFER_COUNT           (10) // simulator needs more buffers for smooth audio
 #elif defined(AUDIO_SPI)
   #define AUDIO_BUFFER_COUNT           (2)  // smaller than Taranis since there is also a buffer on the ADC chip

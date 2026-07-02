@@ -23,7 +23,7 @@
 
 #include "edgetx_types.h"
 
-#if !defined(SIMU) && !defined(BOOT)
+#if !defined(SIMU) && !defined(RADIO_LINUX) && !defined(BOOT)
 static inline void DMAWait()
 {
   while(DMA2D->CR & DMA2D_CR_START);

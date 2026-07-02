@@ -1095,7 +1095,7 @@ int cliMemoryInfo(const char ** argv)
 
 int cliReboot(const char ** argv)
 {
-#if !defined(SIMU)
+#if !defined(SIMU) && !defined(RADIO_LINUX)
   if (!strcmp(argv[1], "wdt")) {
     // do a user requested watchdog test by pausing mixer thread
     pulsesStop();

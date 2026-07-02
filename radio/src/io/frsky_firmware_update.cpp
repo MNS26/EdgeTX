@@ -166,7 +166,7 @@ const uint8_t * FrskyDeviceFirmwareUpdate::readFrame(uint32_t timeout)
 
 bool FrskyDeviceFirmwareUpdate::waitState(State newState, uint32_t timeout)
 {
-#if defined(SIMU)
+#if defined(SIMU) || defined(RADIO_LINUX)
   UNUSED(state);
   UNUSED(timeout);
   static uint8_t pass = 0;

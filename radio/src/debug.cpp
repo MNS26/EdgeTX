@@ -23,11 +23,11 @@
 #include "stamp.h"
 #include <stdarg.h>
 
-#if defined(SIMU)
+#if defined(SIMU) || defined(RADIO_LINUX)
 traceCallbackFunc traceCallback = 0;
 #endif
 
-#if defined(SIMU)
+#if defined(SIMU) || defined(RADIO_LINUX)
 #define PRINTF_BUFFER_SIZE     1024
 void debugPrintf(const char * format, ...)
 {

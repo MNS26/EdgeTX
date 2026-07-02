@@ -32,7 +32,7 @@
 
 EXTERN_C(extern volatile uint32_t g_tmr10ms);
 
-#if defined(SIMU)
+#if defined(SIMU) || defined(RADIO_LINUX)
   typedef void (*traceCallbackFunc)(const char * text);
   extern traceCallbackFunc traceCallback;
   EXTERN_C(void debugPrintf(const char * format, ...));

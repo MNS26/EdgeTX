@@ -729,7 +729,7 @@ bool ModelMap::renameLabel(const std::string &from, std::string to,
       fault = (writeFileYaml(path, get_modeldata_nodes(),
                              (uint8_t *)modeldata, 0) != NULL);
     }
-#if defined(SIMU)
+#if defined(SIMU) || defined(RADIO_LINUX)
     sleep_ms(100);
 #endif
   }

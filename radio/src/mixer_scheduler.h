@@ -29,7 +29,7 @@
 #define MIN_REFRESH_RATE       850 /* us */
 #define MAX_REFRESH_RATE     50000 /* us */
 
-#if !defined(SIMU)
+#if !defined(SIMU) && !defined(RADIO_LINUX)
 
 // Call once to initialize the mixer scheduler
 void mixerSchedulerInit();

@@ -45,12 +45,12 @@
       }
     },
     {
-      "name": "simu-tx16s",
-      "displayName": "Simulator TX16S (Debug)",
+      "name": "linux",
+      "displayName": "Linux (non-simu, SDL-only)",
       "inherits": "simu",
       "cacheVariables": {
-        "PCB": "X10",
-        "PCBREV": "TX16S",
+        "PCB": "LINUX",
+        "PCBREV": "",
         "CMAKE_BUILD_TYPE": "Release",
         "CMAKE_TLS_VERIFY": "OFF",
         "DISABLE_COMPANION": "ON",
@@ -66,12 +66,12 @@
       }
     },
     {
-      "name": "simu-pi",
-      "displayName": "Simulator TX16S (Debug)",
+      "name": "linux-simu",
+      "displayName": "Linux Simu (ImGui chrome)",
       "inherits": "simu",
       "cacheVariables": {
-        "PCB": "X10",
-        "PCBREV": "PI",
+        "PCB": "LINUX",
+        "PCBREV": "",
         "CMAKE_BUILD_TYPE": "Release",
         "CMAKE_TLS_VERIFY": "OFF",
         "DISABLE_COMPANION": "ON",
@@ -83,7 +83,8 @@
         "AUTOSWITCH": "ON",
         "CURVES": "ON",
         "FLIGHT_MODES": "ON",
-        "GVARS": "ON"
+        "GVARS": "ON",
+        "LINUX_SIMU": "ON"
       }
     }
   ],
@@ -121,14 +122,14 @@
       ]
     },
     {
-      "name": "simu-tx16s",
-      "configurePreset": "simu-tx16s",
-      "targets": ["simu"]
+      "name": "linux",
+      "configurePreset": "linux",
+      "targets": ["linux"]
     },
     {
-      "name": "simu-pi",
-      "configurePreset": "simu-tx16s",
-      "targets": ["simu"]
+      "name": "linux-simu",
+      "configurePreset": "linux-simu",
+      "targets": ["standalone"]
     }
   ]
 }

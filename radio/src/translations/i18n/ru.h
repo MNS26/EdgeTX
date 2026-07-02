@@ -74,7 +74,7 @@
 #define TR_QM_LS_MON                    "LS\nМонитор"
 #define TR_QM_STATS                     "Статистика"
 #define TR_QM_DEBUG                     "Отладка"
-#if defined(RADIO_PI)
+#if defined(RADIO_LINUX)
 #warning TRANSLATE THIS
 #define TR_QM_WINDOW                    "Window"
 #define TR_QM_EXIT                      "Shutdown"
