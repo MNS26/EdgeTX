@@ -143,7 +143,7 @@ static void timer10msStart()
   timer_start(&_timer10ms);
 }
 
-#if defined(COLORLCD) && defined(SIMU)
+#if defined(COLORLCD) && (defined(SIMU) || defined(RADIO_LINUX))
 static timer_handle_t _timer1ms = TIMER_INITIALIZER;
 
 static void _timer_1ms_cb(timer_handle_t* h)
@@ -170,7 +170,7 @@ void tasksStart()
   cliStart();
 #endif
 
-#if defined(COLORLCD) && defined(SIMU)
+#if defined(COLORLCD) && (defined(SIMU) || defined(RADIO_LINUX))
   timer1msStart();
 #endif
 

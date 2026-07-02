@@ -509,7 +509,7 @@ void sdInit()
 
 void sdMount()
 {
-  TRACE("sdMount");
+//  TRACE("sdMount");
 
   storagePreMountHook();
   
@@ -560,7 +560,7 @@ void sdDone()
 
 uint32_t sdMounted()
 {
-#if defined(SIMU) && !defined(SIMU_DISKIO)
+#if (defined(SIMU) || defined(RADIO_LINUX)) && !defined(SIMU_DISKIO)
   return true;
 #else
   return _g_FATFS_init && (g_FATFS_Obj.fs_type != 0);
