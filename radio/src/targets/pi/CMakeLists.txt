@@ -22,7 +22,6 @@ if(NOT PI_BUILD)
   # defines existing internal modules
   set(INTERNAL_MODULES PXX1;PXX2;MULTI;CRSF CACHE STRING "Internal modules")
 
-
   add_definitions(-DHARDWARE_KEYS)
 
   if(MULTIMODULE)
@@ -68,7 +67,7 @@ endif()
 set(CMAKE_C_FLAGS "${CMAKE_C_FLAGS} ${WARNING_FLAGS}")
 set(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} ${WARNING_FLAGS}")
 
-# Pi drivers: pi-specific sources + simu stubs
+# Driver files shared by both pi and standalone targets
 set(PI_DRIVERS
   board.cpp
   touch_driver.cpp
@@ -78,8 +77,6 @@ set(PI_DRIVERS
   ../simu/simudisk.cpp
   ../simu/simulcd.cpp
   ../simu/audio_driver.cpp
-  ../simu/switch_driver.cpp
-  ../simu/adc_driver.cpp
   ../simu/module_drivers.cpp
   ../simu/led_driver.cpp
   backlight_driver.cpp
@@ -104,7 +101,7 @@ set(PI_DRIVERS ${PI_DRIVERS}
 
 include_directories(${CMAKE_CURRENT_BINARY_DIR})
 
-# Pack all pi driver sources into an object lib
+# Pack all shared driver sources into an object lib
 add_library(pi_drivers OBJECT EXCLUDE_FROM_ALL
   ${PI_DRIVERS}
 )
@@ -126,25 +123,32 @@ set(PI_SRC
 set(PI_SRC ${PI_SRC} PARENT_SCOPE)
 
 # Image assets (only once)
-#if(NOT TARGET image_assets)
-#  add_png_target(image_assets "../simu/assets/images/*.png")
-#endif()
 add_png_target(image_assets "assets/images/*.png")
 
 # STB
 set(STB_DIR ${RADIO_SRC_DIR}/thirdparty/stb)
 
-# Pi standalone executable (no ImGui, direct SDL)
+# Real hardware sources (compiled only for the pi executable)
+set(PI_HARDWARE_SOURCES
+  adc_driver.cpp
+  ads1115_driver.cpp
+  mcp23017_driver.cpp
+  pi_input.cpp
+  switch_driver.cpp
+)
+
+# Pi standalone executable (no ImGui, direct SDL — real hardware on Pi)
 add_executable(pi
   EXCLUDE_FROM_ALL
   ${PI_SRC}
+  ${PI_HARDWARE_SOURCES}
   ../simu/simuaudio.cpp
   ../simu/display.cpp
   ../simu/arg_parser.cpp
   sdl_pi.cpp
 )
 
-target_compile_options(pi PUBLIC -DSIMU)
+target_compile_options(pi PUBLIC -DSIMU -DHARDWARE_REAL_INPUTS)
 if(USB_CHARGER)
   target_compile_options(pi PUBLIC -DUSB_CHARGER)
   target_compile_options(radiolib_native PUBLIC -DUSB_CHARGER)
@@ -156,12 +160,15 @@ add_dependencies(pi image_assets bm800_bitmaps yaml_data)
 # STB
 target_include_directories(pi PUBLIC ${STB_DIR})
 
-# Pi simu executable (ImGui chrome, for debugging)
+# Pi simu executable (ImGui chrome, for debugging — simu inputs only)
 option(PI_SIMU "Build pi simu with ImGui chrome" OFF)
 if(PI_SIMU)
   add_executable(standalone
     EXCLUDE_FROM_ALL
     ${PI_SRC}
+    simu_input.cpp
+    ../simu/adc_driver.cpp
+    ../simu/switch_driver.cpp
     ../simu/simuaudio.cpp
     ../simu/display.cpp
     ../simu/widgets.cpp
@@ -170,7 +177,7 @@ if(PI_SIMU)
     ../simu/sdl_simu.cpp
   )
 
-  target_compile_options(standalone PUBLIC -DSIMU)
+#  target_compile_options(standalone PUBLIC -DSIMU)
   if(USB_CHARGER)
     target_compile_options(standalone PUBLIC -DUSB_CHARGER)
   endif()

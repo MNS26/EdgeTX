@@ -68,7 +68,7 @@ rotenc_t rotaryEncoderGetValue()
   return rotencValue / ROTARY_ENCODER_GRANULARITY;
 }
 
-extern const etx_hal_adc_driver_t simu_adc_driver;
+const etx_hal_adc_driver_t* getDefaultAdcDriver();
 
 void lcdCopy(void * dest, void * src);
 void lcdFlushed();
@@ -85,7 +85,7 @@ void simuInit()
 
   traceCallback = simuTrace;
 
-  adcInit(&simu_adc_driver);
+  adcInit(getDefaultAdcDriver());
   switchInit();
 
 #if defined(AUX_SERIAL) || defined(AUX2_SERIAL)
@@ -282,32 +282,6 @@ bool getHatsAsKeys()
 
 void pollKeys()
 {
-}
-
-uint32_t readKeys()
-{
-  uint32_t result = 0;
-
-  for (int i = 0; i < MAX_KEYS; i++) {
-    if (keysStates[i]) {
-      result |= 1 << i;
-    }
-  }
-
-  return result;
-}
-
-uint32_t readTrims()
-{
-  uint32_t trims = 0;
-
-  for (int i = 0; i < keysGetMaxTrims() * 2; i++) {
-    if (trimsStates[i]) {
-      trims |= 1 << i;
-    }
-  }
-
-  return trims;
 }
 
 int usbPlugged() { return false; }

@@ -23,26 +23,50 @@
 #include <SDL.h>
 #include <SDL_keycode.h>
 
-#include "stb_image.h"
-
+#include <algorithm>
+#include <iostream>
+#include <fstream>
+#include <filesystem>
+#include <regex>
+#include <string>
 #include <cstdio>
 #include <cstdlib>
-#include <algorithm>
-#include <cmath>
-#include <filesystem>
 
-#include "arg_parser.h"
-#include "display.h"
+
 #include "hal/adc_driver.h"
 #include "hal/key_driver.h"
+#include "hal/rotary_encoder.h"
+
+#if !SDL_VERSION_ATLEAST(2,0,19)
+#error This backend requires SDL 2.0.19 or newer because of SDL_RenderGeometryRaw() function
+#endif
+
+#if defined(__clang__)
+#pragma clang diagnostic ignored "-Wunused-function"
+#elif defined(__GNUC__)
+#pragma GCC diagnostic ignored "-Wunused-function"
+#endif
+
+#define STB_IMAGE_IMPLEMENTATION
+#define STB_IMAGE_STATIC
+#include "stb_image.h"
+
+#if defined(STBI_NO_STDIO)
+  #error "STBI_NO_STDIO is defined"
+#endif
+
 #include "simu.h"
+#include "display.h"
 #include "simuaudio.h"
 #include "simulib.h"
 #include "edgetx.h"
+#include "arg_parser.h"
 
 #if defined(ROTARY_ENCODER_NAVIGATION)
-#include "hal/rotary_encoder.h"
 extern volatile rotenc_t rotencValue;
+extern volatile uint32_t rotencDt;
+static uint32_t last_encoder_tick;
+
 #endif
 
 #define TIMER_INTERVAL 10 // 10ms
@@ -57,8 +81,6 @@ static const unsigned char _icon_png[] = {
 };
 #endif
 
-extern volatile uint32_t rotencDt;
-static uint32_t last_encoder_tick;
 
 static bool app_running = false;
 
@@ -101,10 +123,11 @@ static bool handleKeyEvent(const SDL_Event& event)
 
     case SDLK_UP:
 #if defined(ROTARY_ENCODER_NAVIGATION)
-      if (event.type == SDL_KEYDOWN)
+      if (event.type == SDL_KEYDOWN) {
         rotencValue += ROTARY_ENCODER_GRANULARITY;
         rotencDt += SDL_GetTicks() - last_encoder_tick;
         last_encoder_tick = SDL_GetTicks();
+      }
 #else
       if (keysGetSupported() & (1 << KEY_UP)) {
         key = KEY_UP;
@@ -115,10 +138,11 @@ static bool handleKeyEvent(const SDL_Event& event)
 
     case SDLK_DOWN:
 #if defined(ROTARY_ENCODER_NAVIGATION)
-      if (event.type == SDL_KEYDOWN)
+      if (event.type == SDL_KEYDOWN) {
         rotencValue -= ROTARY_ENCODER_GRANULARITY;
         rotencDt += SDL_GetTicks() - last_encoder_tick;
         last_encoder_tick = SDL_GetTicks();
+      }
 #else
       if (keysGetSupported() & (1 << KEY_DOWN)) {
         key = KEY_DOWN;
@@ -389,6 +413,10 @@ uint16_t simuGetAnalog(uint8_t idx)
   }
   return 0;
 }
+uint16_t simuGetKey(uint8_t idx) {
+  return 0;
+}
+
 
 void simuTrace(const char* text) {}
 
