@@ -790,3 +790,20 @@ uint8_t pdmGetSoundLevel() { return 0; }
 bool pdmCapture() { return false; }
 uint32_t pdmConvertToPCM(int16_t*, uint32_t) { return 0; }
 #endif
+
+// USB stubs for linux target (no STM32 USB hardware)
+void usbStart() {}
+void usbStop() {}
+bool usbStarted() { return false; }
+void usbJoystickUpdate() {}
+void usbJoystickRestart() {}
+
+// DMA stub for linux target
+void DMAInit() {}
+
+// FatFs disk_ioctl stub
+#include "hal/fatfs_diskio.h"
+extern "C" DRESULT disk_ioctl(BYTE, BYTE, void*)
+{
+  return RES_PARERR;
+}
