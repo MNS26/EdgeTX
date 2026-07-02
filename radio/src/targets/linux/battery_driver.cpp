@@ -28,8 +28,8 @@
 #include <cstring>
 #include <cstdio>
 
-static char battery_name[32] = {};
-static char ac_name[32] = {};
+static char battery_name[256] = {};
+static char ac_name[256] = {};
 static bool battery_found = false;
 static bool ac_found = false;
 
@@ -53,10 +53,10 @@ static void scanPowerSupply()
     type_file >> type;
 
     if (type == "Battery" && !battery_found) {
-      strncpy(battery_name, entry->d_name, sizeof(battery_name) - 1);
+      strncpy(battery_name, entry->d_name, sizeof(battery_name));
       battery_found = true;
     } else if (type == "Mains" && !ac_found) {
-      strncpy(ac_name, entry->d_name, sizeof(ac_name) - 1);
+      strncpy(ac_name, entry->d_name, sizeof(ac_name));
       ac_found = true;
     }
   }
