@@ -13,7 +13,6 @@
 #include "hal/serial_port.h"
 #include "hal/watchdog_driver.h"
 
-// Piggybacking on the simu
 #if defined(HARDWARE_TOUCH)
 struct TouchState touchPanelRead();
 bool touchPanelEventOccured();
@@ -34,11 +33,7 @@ extern HardwareOptions hardwareOptions;
 #define BOOTLOADER_SIZE                0x20000
 #define FIRMWARE_ADDRESS               0x08000000
 
-#if defined(SIMU)
-  #define IS_FIRMWARE_COMPATIBLE_WITH_BOARD() true
-#else
-  #define IS_FIRMWARE_COMPATIBLE_WITH_BOARD() true
-#endif
+#define IS_FIRMWARE_COMPATIBLE_WITH_BOARD() true
 
 // Trims driver
 #define NUM_TRIMS                               6

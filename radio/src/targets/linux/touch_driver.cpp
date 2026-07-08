@@ -1,18 +1,18 @@
 #include "touch_driver.h"
 
-static TouchState piTouchState = {};
-static bool piTouchOccured = false;
+TouchState touchState = {};
+static bool touchOccured = false;
 
 bool touchPanelInit()
 {
-  piTouchState.x = piTouchState.y = 0;
+  touchState.x = touchState.y = 0;
   return true;
 }
 
 bool touchPanelEventOccured()
 {
-  if (piTouchOccured) {
-    piTouchOccured = false;
+  if (touchOccured) {
+    touchOccured = false;
     return true;
   }
   return false;
@@ -20,27 +20,27 @@ bool touchPanelEventOccured()
 
 void touchPanelDown(short x, short y)
 {
-  piTouchState.x = x;
-  piTouchState.y = y;
-  piTouchState.event = TE_DOWN;
-  piTouchOccured = true;
+  touchState.x = x;
+  touchState.y = y;
+  touchState.event = TE_DOWN;
+  touchOccured = true;
 }
 
 void touchPanelUp()
 {
-  piTouchState.event = TE_UP;
-  piTouchOccured = true;
+  touchState.event = TE_UP;
+  touchOccured = true;
 }
 
 struct TouchState touchPanelRead()
 {
-  struct TouchState st = piTouchState;
-  piTouchState.deltaX = 0;
-  piTouchState.deltaY = 0;
+  struct TouchState st = touchState;
+  touchState.deltaX = 0;
+  touchState.deltaY = 0;
   return st;
 }
 
 struct TouchState getInternalTouchState()
 {
-  return piTouchState;
+  return touchState;
 }

@@ -55,16 +55,16 @@
   #error "STBI_NO_STDIO is defined"
 #endif
 
-#include "simu.h"
+#include "linux.h"
+//#include "simu.h"
 #include "display.h"
 #include "simuaudio.h"
-#include "simulib.h"
+//#include "simulib.h"
+#include "linux_simulib.h"
 #include "edgetx.h"
 #include "arg_parser.h"
 
 #if defined(ROTARY_ENCODER_NAVIGATION)
-extern volatile rotenc_t rotencValue;
-extern volatile uint32_t rotencDt;
 static uint32_t last_encoder_tick;
 
 #endif
@@ -83,6 +83,8 @@ static const unsigned char _icon_png[] = {
 
 
 static bool app_running = false;
+
+
 
 static bool handleKeyEvent(const SDL_Event& event)
 {
@@ -205,8 +207,8 @@ static bool handleKeyEvent(const SDL_Event& event)
 
     case SDLK_r:
       if (event.type == SDL_KEYUP) {
-        simuStop();
-        simuStart();
+        linuxStop();
+        linuxStart();
       }
       break;
 
@@ -340,10 +342,10 @@ int main(int argc, char* argv[])
   }
 #endif
 
-  simuInit();
-  simuFatfsSetPaths(args.getStoragePath().c_str(),
-                    args.getSettingsPath().c_str());
-  simuStart();
+  linuxInit();
+  fatfsSetPath(args.getStoragePath().c_str(),
+               args.getSettingsPath().c_str());
+  linuxStart();
 
   // Main Loop
   SDL_SetEventFilter([](void*, SDL_Event* event) {
@@ -370,7 +372,7 @@ int main(int argc, char* argv[])
     SDL_Delay(std::max(0, (int)floor(16.666f - elapsed_ms)));
   }
 
-  simuStop();
+  linuxStop();
 
   SDL_DestroyTexture(screen_texture);
   SDL_DestroyRenderer(renderer);
@@ -422,12 +424,13 @@ void simuTrace(const char* text) {}
 
 void simuLcdNotify() {}
 
-void simuMinimize()
+void linuxMinimize()
 {
   SDL_MinimizeWindow(window);
 }
 
-void simuShutdown()
+void linuxShutdown()
 {
   app_running = false;
 }
+

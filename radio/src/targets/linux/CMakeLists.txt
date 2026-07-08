@@ -6,8 +6,10 @@ if(NOT LINUX_BUILD)
   set(GUI_DIR colorlcd)
   set(BITMAPS_DIR 800x480)
   set(CPU_TYPE STM32F4)
-  set(CPU_TYPE_FULL STM32F429xI)
+#  set(CPU_TYPE_FULL STM32F429xI)
+#  set(ARCH ARM)
   set(PCBREV STD)
+  set(TRAINER NO)
   set(ROTARY_ENCODER YES)
   set(USB_CHARGER YES)
   set(HARDWARE_TOUCH YES)
@@ -73,16 +75,13 @@ set(LINUX_DRIVERS
   touch_driver.cpp
   battery_driver.cpp
   linux_simulib.cpp
-  ../simu/simufatfs.cpp
-  ../simu/simudisk.cpp
+  linuxfatfs.cpp
   ../simu/simulcd.cpp
-  ../simu/audio_driver.cpp
-  ../simu/module_drivers.cpp
-  ../simu/led_driver.cpp
+  audio_driver.cpp
+  module_drivers.cpp
   backlight_driver.cpp
-  ../simu/bt_driver.cpp
-  ../simu/timers_driver.cpp
-  ../simu/abnormal_reboot.cpp
+  timers_driver.cpp
+  linux_abnormal_reboot.cpp
 )
 
 # Simu include directories for shared headers
@@ -133,7 +132,7 @@ set(LINUX_HARDWARE_SOURCES
 # Linux standalone executable (no ImGui, direct SDL — real hardware on Linux)
 add_executable(linux
   EXCLUDE_FROM_ALL
-  $<TARGET_OBJECTS:radiolib_native_nosimu>
+  $<TARGET_OBJECTS:radiolib_native>
   $<TARGET_OBJECTS:linux_drivers>
   ${LINUX_HARDWARE_SOURCES}
   ../simu/simuaudio.cpp
@@ -170,7 +169,10 @@ if(LINUX_SIMU)
     ../simu/knobs.cpp
     ../simu/arg_parser.cpp
     ../simu/sdl_simu.cpp
+    linux_simu_stubs.cpp
   )
+
+  target_compile_options(standalone PUBLIC -DSIMU -DNATIVE_THREADS)
 
   if(USB_CHARGER)
     target_compile_options(standalone PUBLIC -DUSB_CHARGER)

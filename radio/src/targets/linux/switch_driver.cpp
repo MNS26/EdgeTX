@@ -44,6 +44,8 @@ struct hw_switch_def {
 #endif
 };
 
+
+
 #include "simu_switches.inc"
 
 int8_t switchesStates[MAX_SWITCHES];

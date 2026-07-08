@@ -19,9 +19,9 @@
  * GNU General Public License for more details.
  */
 
-#include "simulib.h"
+#include "linux_simulib.h"
+#include "linux.h"
 #include "simulcd.h"
-#include "simu.h"
 
 #include "hal/adc_driver.h"
 #include "hal/rotary_encoder.h"
@@ -55,9 +55,10 @@ extern uint8_t startOptions;
 
 char * main_thread_error = nullptr;
 
-bool simu_shutdown = false;
-bool simu_running = false;
-bool simuCreateDefaultSettings = false;
+bool shutdown = false;
+bool simu_shutdown = false; // TODO: remove dependent code
+bool running = false;
+bool CreateDefaultSettings = false;
 
 
 volatile rotenc_t rotencValue = 0;
@@ -77,7 +78,7 @@ void lcdFlushed();
 static void hostSerialInit();
 #endif
 
-void simuInit()
+void linuxInit()
 {
 #if defined(ROTARY_ENCODER_NAVIGATION)
   rotencValue = 0;
@@ -107,23 +108,14 @@ void simuSetTrim(uint8_t trim, bool state)
   trimsStates[trim] = state;
 }
 
-#if defined(SIMU_BOOTLOADER)
-int bootloaderMain();
-static void* bootloaderThread(void*)
-{
-  bootloaderMain();
-  return nullptr;
-}
-#endif
-
 void simuCreateDefaults()
 {
-  simuCreateDefaultSettings = true;
+  CreateDefaultSettings = true;
 }
 
-void simuStart(bool tests)
+void linuxStart(bool tests)
 {
-  if (simu_running)
+  if (running)
     return;
 
 #if !defined(COLORLCD)
@@ -131,7 +123,7 @@ void simuStart(bool tests)
 #endif
 
   startOptions = (tests ? 0 : OPENTX_START_NO_SPLASH | OPENTX_START_NO_CALIBRATION | OPENTX_START_NO_CHECKS);
-  simu_shutdown = false;
+  shutdown = false;
 
   if (g_tmr10ms == 0) {
     g_tmr10ms = 1;
@@ -159,21 +151,8 @@ void simuStart(bool tests)
 #endif
 
   lcdInit();
-
-#if !defined(SIMU_BOOTLOADER)
-  simuMain();
-#else
-  pthread_attr_t attr;
-  pthread_attr_init(&attr);
-  struct sched_param sp;
-  sp.sched_priority = SCHED_RR;
-  pthread_attr_setschedparam(&attr, &sp);
-
-  pthread_t bl_pid;
-  pthread_create(&bl_pid, &attr, &bootloaderThread, nullptr);
-#endif
-
-  simu_running = true;
+  linuxMain();
+  running = true;
 }
 
 extern task_handle_t mixerTaskId;
@@ -182,20 +161,20 @@ extern task_handle_t menusTaskId;
 extern task_handle_t audioTaskId;
 #endif
 
-void simuStop()
+void linuxStop()
 {
-  if (!simu_running)
+  if (!running)
     return;
 
-  simu_shutdown = true;
+  shutdown = true;
   task_shutdown_all();
 
-  simu_running = false;
+  running = false;
 }
 
-bool simuIsRunning()
+bool linuxIsRunning()
 {
-  return simu_running;
+  return running;
 }
 
 bool simuLcdChanged()
@@ -246,7 +225,7 @@ void lcdSetInvert(bool invert)
 }
 #endif
 
-uint32_t pwrCheck() { return simu_shutdown ? e_power_off : e_power_on; }
+uint32_t pwrCheck() { return shutdown ? e_power_off : e_power_on; }
 
 bool pwrPressed() { return false; }
 bool pwrOffPressed()
@@ -280,6 +259,8 @@ bool getHatsAsKeys()
 }
 #endif
 
+// Called by the main EdgeTX code.
+// Under linux not used
 void pollKeys()
 {
 }
@@ -329,38 +310,26 @@ uint32_t Master_frequency = 0;
 uint32_t Current_used = 0;
 uint16_t Current_max = 0;
 
-void setSticksGain(uint8_t)
-{
-}
-
-uint16_t getCurrent()
-{
-  return 10;
-}
-
-void calcConsumption()
-{
-}
-
 void handleJackConnection() {}
 
 int trainerModuleSbusGetByte(unsigned char*) { return 0; }
 
+// stub: OS manages rtc
 void rtcInit()
 {
 }
 
+// hook into OD rtc to read time
+// technically not needed
 void rtcGetTime(struct gtm * t)
 {
 }
 
+//stub: OS manages rtc
 void rtcSetTime(const struct gtm * t)
 {
 }
 
-#if defined(PCBTARANIS)
-void sdPoll10ms() {}
-#endif
 
 uint32_t SD_GetCardType() { return 0; }
 
@@ -532,19 +501,20 @@ const etx_serial_port_t* auxSerialGetPort(int port_nr)
   return serialPorts[port_nr];
 }
 
+#if defined(HARDWARE_TOUCH)
 void simuTouchDown(int16_t x, int16_t y)
 {
-#if defined(HARDWARE_TOUCH)
   touchPanelDown(x, y);
-#endif
 }
 
 void simuTouchUp()
 {
-#if defined(HARDWARE_TOUCH)
   touchPanelUp();
-#endif
 }
+#else
+void simuTouchDown(int16_t x, int16_t y){}
+void simuTouchUp(){}
+#endif
 
 void simuRotaryEncoderEvent(int32_t steps)
 {

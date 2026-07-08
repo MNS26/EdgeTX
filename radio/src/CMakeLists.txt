@@ -574,7 +574,10 @@ if(NATIVE_BUILD)
 
   # Add SIMU and NATIVE_THREAD here PUBLIC, so it can be imported by other targets
   # via INTERFACE_COMPILE_OPTIONS
-  target_compile_options(radiolib_native PUBLIC -DSIMU -DNATIVE_THREADS)
+  target_compile_options(radiolib_native PUBLIC -DNATIVE_THREADS)
+if(NOT PCB STREQUAL "LINUX")
+  target_compile_options(radiolib_native PUBLIC -DSIMU)
+endif()
   target_sources(radiolib_native PUBLIC
     os/async_native.cpp
     os/sleep_native.cpp
@@ -586,21 +589,6 @@ if(NATIVE_BUILD)
   set_property(TARGET radiolib_native PROPERTY POSITION_INDEPENDENT_CODE ON)
 
   if(PCB STREQUAL "LINUX")
-    # radiolib_native_nosimu: same sources as radiolib_native, compiled without -DSIMU
-    # for the real-hardware linux target
-    add_library(radiolib_native_nosimu OBJECT EXCLUDE_FROM_ALL
-      ${RADIOLIB_NATIVE_SRC}
-    )
-    target_compile_options(radiolib_native_nosimu PUBLIC -DNATIVE_THREADS -DRADIO_LINUX)
-    target_sources(radiolib_native_nosimu PUBLIC
-      os/async_native.cpp
-      os/sleep_native.cpp
-      os/task_native.cpp
-      os/time_native.cpp
-      os/timer_native.cpp
-    )
-    add_dependencies(radiolib_native_nosimu ${RADIO_DEPENDENCIES})
-    set_property(TARGET radiolib_native_nosimu PROPERTY POSITION_INDEPENDENT_CODE ON)
     add_subdirectory(targets/linux)
   else()
     add_subdirectory(targets/simu)

@@ -49,12 +49,11 @@
 #include "view_text.h"
 
 #if defined(RADIO_LINUX)
-// Cleanest way i could think of
-#include "targets/simu/simu.h"
+#include "linux.h"
 
 const PageDef windowMenuItems[] = {
-  { ICON_BTN_CLOSE, STR_DEF(STR_QM_MINIMIZE), STR_DEF(STR_QM_MINIMIZE), PAGE_ACTION, QM_NONE, nullptr, nullptr, []() { simuMinimize(); } },
-  { ICON_BTN_CLOSE, STR_DEF(STR_QM_EXIT), STR_DEF(STR_QM_EXIT), PAGE_ACTION, QM_NONE, nullptr, nullptr, []() { simuShutdown(); } },
+  { ICON_BTN_CLOSE, STR_DEF(STR_QM_MINIMIZE), STR_DEF(STR_QM_MINIMIZE), PAGE_ACTION, QM_NONE, nullptr, nullptr, []() { linuxMinimize(); } },
+  { ICON_BTN_CLOSE, STR_DEF(STR_QM_EXIT), STR_DEF(STR_QM_EXIT), PAGE_ACTION, QM_NONE, nullptr, nullptr, []() { linuxShutdown(); } },
   { EDGETX_ICONS_COUNT }
 };
 #endif
