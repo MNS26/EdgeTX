@@ -1654,10 +1654,10 @@ void edgeTxInit()
 extern "C" void initialise_monitor_handles();
 #endif
 
-#if defined(RADIO_LINUX)
-void linuxMain()
-#elif defined(SIMU)
+#if defined(SIMU)
 void simuMain()
+#elif defined(RADIO_LINUX)
+void linuxMain()
 #else
 int main()
 #endif
