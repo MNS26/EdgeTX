@@ -1095,7 +1095,7 @@ LEGACY_NAMES = [
             },
         },
     },{
-        "targets": {"pi", "linux"},
+        "targets": {"linux"},
         "inputs": {
             "LH": {
                 "yaml": "Rud",
