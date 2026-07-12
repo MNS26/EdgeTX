@@ -874,15 +874,3 @@ uint16_t simuGetAnalog(uint8_t idx)
 
 void simuTrace(const char* text) {}
 void simuLcdNotify() {}
-
-void simuMinimize()
-{
-  SDL_MinimizeWindow(window);
-}
-
-void simuShutdown()
-{
-  SDL_Event ev;
-  ev.type = SDL_QUIT;
-  SDL_PushEvent(&ev);
-}

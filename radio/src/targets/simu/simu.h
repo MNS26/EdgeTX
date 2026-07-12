@@ -36,7 +36,3 @@ void per10ms();
 bool touchPanelInit();
 void touchPanelDown(short x, short y);
 void touchPanelUp();
-
-// SDL window management
-void simuMinimize();
-void simuShutdown();

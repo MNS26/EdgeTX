@@ -23,9 +23,7 @@
 #include "hal/rgbleds.h"
 #include "definitions.h"
 
-#if !defined(RADIO_LINUX)
 bool usbChargerLed() { return true; }
-#endif
 void ledRed() {}
 void ledGreen() {}
 void ledBlue() {}
