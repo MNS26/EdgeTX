@@ -101,12 +101,6 @@ def main():
     args = ['-x', 'c++', '-std=c++11'] + sys.argv[2:]
     if find_clang.builtin_hdr_path:
         args.append("-I" + find_clang.builtin_hdr_path)
-    _nix_dirs = os.environ.get("NIX_SYSTEM_INCLUDE_DIRS", "")
-    if _nix_dirs:
-        for _d in _nix_dirs.split(":"):
-            if os.path.isdir(_d):
-                args.append("-idirafter")
-                args.append(_d)
 
     translation_unit = index.parse(sys.argv[1], args)
 
