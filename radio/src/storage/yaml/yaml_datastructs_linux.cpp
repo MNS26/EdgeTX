@@ -53,12 +53,6 @@ const struct YamlIdStr enum_BeeperMode[] = {
   {  e_mode_all, "mode_all"  },
   {  0, NULL  }
 };
-const struct YamlIdStr enum_BluetoothModes[] = {
-  {  BLUETOOTH_OFF, "OFF"  },
-  {  BLUETOOTH_TELEMETRY, "TELEMETRY"  },
-  {  BLUETOOTH_TRAINER, "TRAINER"  },
-  {  0, NULL  }
-};
 const struct YamlIdStr enum_Functions[] = {
   {  FUNC_OVERRIDE_CHANNEL, "OVERRIDE_CHANNEL"  },
   {  FUNC_TRAINER, "TRAINER"  },
