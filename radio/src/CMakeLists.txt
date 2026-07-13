@@ -1,7 +1,7 @@
 include(CMakeForceCompiler)
 include(Bitmaps)
 
-set(PCB_TYPES X9LITE X9LITES X7 XLITE XLITES X9D X9D+ X9E X10 X12S PL18 T15PRO ST16 PA01 TX15 TX16SMK3 T22 LINUX)
+set(PCB_TYPES X9LITE X9LITES X7 XLITE XLITES X9D X9D+ X9E X10 X12S PL18 T15PRO ST16 PA01 TX15 TX16SMK3 T22 "LINUX")
 set(RADIO_LANGUAGES CN CZ DA DE EN ES FI FR HE HU IT JP KO NL PL PT RU SE SK TW UA)
 set(TTS_LANGUAGES CN CZ DA DE EN ES FI FR HE HU IT JP KO NL PL PT RU SE SK TW UA)
 
@@ -31,6 +31,7 @@ option(ASTERISK "Enable asterisk icon (test only firmware)" OFF)
 option(LUA "Enable LUA support" ON)
 option(SIMU_DISKIO "Enable disk IO simulation in simulator. Simulator will use FatFs module and simulated IO layer that  uses \"./sdcard.image\" file as image of SD card. This file must contain whole SD card from first to last sector" OFF)
 option(SIMU_LUA_COMPILER "Pre-compile and save Lua scripts in simulator." ON)
+option(SIMU_TARGET "Build the simulator target" ON)
 option(FAS_PROTOTYPE "Support of old FAS prototypes (different resistors)" OFF)
 option(RAS "RAS (SWR) enabled" ON)
 option(TEMPLATES "Model templates menu" OFF)
@@ -117,7 +118,6 @@ endif()
 # Add RADIO_xxx definition
 string(TOUPPER ${FLAVOUR} RADIO_NAME)
 string(REPLACE "+" "P" RADIO_NAME ${RADIO_NAME})
-string(REPLACE "-" "_" RADIO_NAME ${RADIO_NAME})
 string(CONCAT RADIO_NAME "RADIO_" ${RADIO_NAME})
 add_definitions(-D${RADIO_NAME})
 set(${RADIO_NAME} YES)
@@ -162,10 +162,10 @@ add_custom_target(hardware_defs DEPENDS ${HW_DESC_JSON}.h)
 include_directories(targets/${TARGET_DIR} ${THIRDPARTY_DIR})
 
 if(NATIVE_BUILD)
-  if(PCB STREQUAL "LINUX")
-    include_directories(targets/linux)
-  else()
+  if(SIMU_TARGET)
     include_directories(targets/simu)
+  else()
+    include_directories(targets/linux)
   endif()
 endif()
 
@@ -574,9 +574,10 @@ if(NATIVE_BUILD)
 
   # Add SIMU and NATIVE_THREAD here PUBLIC, so it can be imported by other targets
   # via INTERFACE_COMPILE_OPTIONS
+if(SIMU_TARGET)
+  target_compile_options(radiolib_native PUBLIC -DNATIVE_THREADS -DSIMU)
+else()
   target_compile_options(radiolib_native PUBLIC -DNATIVE_THREADS)
-if(NOT PCB STREQUAL "LINUX")
-  target_compile_options(radiolib_native PUBLIC -DSIMU)
 endif()
   target_sources(radiolib_native PUBLIC
     os/async_native.cpp
@@ -585,13 +586,13 @@ endif()
     os/time_native.cpp
     os/timer_native.cpp
   )
-  add_dependencies(radiolib_native ${RADIO_DEPENDENCIES})
+  add_dependencies(radiolib_native ${RADIO_DEPENDENCIES} yaml_data)
   set_property(TARGET radiolib_native PROPERTY POSITION_INDEPENDENT_CODE ON)
 
-  if(PCB STREQUAL "LINUX")
-    add_subdirectory(targets/linux)
-  else()
+  if(SIMU_TARGET)
     add_subdirectory(targets/simu)
+  else()
+    add_subdirectory(targets/linux)
   endif()
 
   if(NOT WASI)
