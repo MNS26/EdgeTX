@@ -53,6 +53,12 @@ const struct YamlIdStr enum_BeeperMode[] = {
   {  e_mode_all, "mode_all"  },
   {  0, NULL  }
 };
+const struct YamlIdStr enum_BluetoothModes[] = {
+  {  BLUETOOTH_OFF, "OFF"  },
+  {  BLUETOOTH_TELEMETRY, "TELEMETRY"  },
+  {  BLUETOOTH_TRAINER, "TRAINER"  },
+  {  0, NULL  }
+};
 const struct YamlIdStr enum_Functions[] = {
   {  FUNC_OVERRIDE_CHANNEL, "OVERRIDE_CHANNEL"  },
   {  FUNC_TRAINER, "TRAINER"  },
@@ -155,19 +161,6 @@ const struct YamlIdStr enum_MixerMultiplex[] = {
 };
 const struct YamlIdStr enum_MixSources[] = {
   {  MIXSRC_NONE, "NONE"  },
-// TODO: clean this up since its a copy of x10
-  #if defined(IMU)
-  {  MIXSRC_TILT_X, "TILT_X"  },
-  {  MIXSRC_TILT_Y, "TILT_Y"  },
-#endif
-#if defined(PCBHORUS)
-  {  MIXSRC_SPACEMOUSE_A, "SPACEMOUSE_A"  },
-  {  MIXSRC_SPACEMOUSE_B, "SPACEMOUSE_B"  },
-  {  MIXSRC_SPACEMOUSE_C, "SPACEMOUSE_C"  },
-  {  MIXSRC_SPACEMOUSE_D, "SPACEMOUSE_D"  },
-  {  MIXSRC_SPACEMOUSE_E, "SPACEMOUSE_E"  },
-  {  MIXSRC_SPACEMOUSE_F, "SPACEMOUSE_F"  },
-#endif
   {  MIXSRC_MIN, "MIN"  },
   {  MIXSRC_MAX, "MAX"  },
   {  MIXSRC_TX_VOLTAGE, "TX_VOLTAGE"  },
@@ -431,8 +424,6 @@ static const struct YamlNode struct_RadioData[] = {
   YAML_UNSIGNED( "rotEncMode", 3 ),
   YAML_SIGNED( "uartSampleMode", 2 ),
   YAML_PADDING( 3 ),
-  YAML_SIGNED( "imuMax", 8 ),
-  YAML_SIGNED( "imuOffset", 8 ),
   YAML_STRING("selectedTheme", 26),
   YAML_SIGNED_CUST( "backlightSrc", 10, r_mixSrcRawEx, w_mixSrcRawEx ),
   YAML_SIGNED( "radioGFDisabled", 1 ),
@@ -997,3 +988,4 @@ const YamlNode* get_partialmodel_nodes()
 {
    return &__PartialModel_root_node;
 }
+
