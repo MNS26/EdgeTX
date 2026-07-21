@@ -20,6 +20,9 @@
  */
 
 #include "display.h"
+#include "simulcd.h"
+#include "edgetx.h"
+#include "hal.h"
 
 static void _set_pixel(uint8_t* pixel, const SDL_Color& color)
 {
@@ -124,7 +127,7 @@ void refreshDisplay(SDL_Texture* screen)
     if (LCD_DEPTH == 1) {
       _blit_linux_screen_1bit(screen_buffer, format, width, height, pitch);
     } else if (LCD_DEPTH == 4) {
-      _blit_linux_simu_screen_4bit(screen_buffer, format, width, height, pitch);
+      _blit_linux_screen_4bit(screen_buffer, format, width, height, pitch);
     } else if (LCD_DEPTH == 16) {
       _blit_linux_screen_color(screen_buffer, format, width, height, pitch);
     }

@@ -1,13 +1,12 @@
-# Configuration part — runs during include() from parent scope
 if(NOT LINUX_BUILD)
   message(STATUS "Configuring Linux target")
-  set(FLAVOUR linux)
-  set(TARGET_DIR linux)
+  set(FLAVOUR "linux")
+  set(TARGET_DIR "linux")
   set(GUI_DIR colorlcd)
   set(BITMAPS_DIR 800x480)
+  set(BITMAPS_TARGET bm800_bitmaps)
+  set(RADIO_DEPENDENCIES ${RADIO_DEPENDENCIES} ${BITMAPS_TARGET})
   set(CPU_TYPE STM32F4)
-#  set(CPU_TYPE_FULL STM32F429xI)
-#  set(ARCH ARM)
   set(PCBREV STD)
   set(TRAINER NO)
   set(ROTARY_ENCODER YES)
@@ -78,10 +77,21 @@ set(LINUX_DRIVERS
   linuxfatfs.cpp
   ../simu/simulcd.cpp
   audio_driver.cpp
+  fs_watcher.cpp
   module_drivers.cpp
+  serial_driver.cpp
   backlight_driver.cpp
   timers_driver.cpp
   linux_abnormal_reboot.cpp
+)
+
+# Real hardware sources (compiled only for the linux executable, without -DSIMU)
+set(LINUX_HW_SRC
+  adc_driver.cpp
+  ads1115_driver.cpp
+  mcp23017_driver.cpp
+  linux_input.cpp
+  switch_driver.cpp
 )
 
 # Simu include directories for shared headers
@@ -114,76 +124,45 @@ target_compile_options(linux_drivers PRIVATE ${LINUX_SRC_OPTIONS})
 set_property(TARGET linux_drivers PROPERTY POSITION_INDEPENDENT_CODE ON)
 add_dependencies(linux_drivers bm800_bitmaps)
 
-# Image assets (only once)
-add_png_target(image_assets "assets/images/*.png")
+set(LINUX_SRC
+  $<TARGET_OBJECTS:radiolib_native>
+  $<TARGET_OBJECTS:linux_drivers>
+)
+set(LINUX_SRC ${LINUX_SRC} PARENT_SCOPE)
+
+# Set the options as well in parent scope to be used by unit test
+set(LINUX_SRC_OPTIONS ${LINUX_SRC_OPTIONS} PARENT_SCOPE)
 
 # STB
 set(STB_DIR ${RADIO_SRC_DIR}/thirdparty/stb)
 
-# Real hardware sources (compiled only for the linux executable, without -DSIMU)
-set(LINUX_HARDWARE_SOURCES
-  adc_driver.cpp
-  ads1115_driver.cpp
-  mcp23017_driver.cpp
-  linux_input.cpp
-  switch_driver.cpp
-)
 
-# Linux standalone executable (no ImGui, direct SDL — real hardware on Linux)
 add_executable(linux
   EXCLUDE_FROM_ALL
-  $<TARGET_OBJECTS:radiolib_native>
-  $<TARGET_OBJECTS:linux_drivers>
-  ${LINUX_HARDWARE_SOURCES}
-  ../simu/simuaudio.cpp
-  ../simu/display.cpp
+  ${LINUX_SRC}
+  ${LINUX_HW_SRC}
+  display.cpp
+  audio.cpp
+
+#  ../simu/simuaudio.cpp
+#  ../simu/display.cpp
   ../simu/arg_parser.cpp
   sdl_linux.cpp
 )
 
 target_compile_options(linux PUBLIC -DRADIO_LINUX -DHARDWARE_REAL_INPUTS)
+
 if(USB_CHARGER)
   target_compile_options(linux PUBLIC -DUSB_CHARGER)
   target_compile_options(radiolib_native PUBLIC -DUSB_CHARGER)
 endif()
+
 target_include_directories(linux PUBLIC ${STB_DIR})
 target_link_libraries(linux PRIVATE SDL2::SDL2)
+
+# Image assets (only once)
+add_png_target(image_assets "assets/images/*.png")
 add_dependencies(linux image_assets bm800_bitmaps yaml_data)
 
 # STB
 target_include_directories(linux PUBLIC ${STB_DIR})
-
-# Linux simu executable (ImGui chrome, for debugging — simu inputs only)
-option(LINUX_SIMU "Build linux simu with ImGui chrome" OFF)
-if(LINUX_SIMU)
-  add_executable(standalone
-    EXCLUDE_FROM_ALL
-    $<TARGET_OBJECTS:radiolib_native>
-    $<TARGET_OBJECTS:linux_drivers>
-    simu_input.cpp
-    ../simu/adc_driver.cpp
-    ../simu/switch_driver.cpp
-    ../simu/simuaudio.cpp
-    ../simu/display.cpp
-    ../simu/widgets.cpp
-    ../simu/knobs.cpp
-    ../simu/arg_parser.cpp
-    ../simu/sdl_simu.cpp
-    linux_simu_stubs.cpp
-  )
-
-  target_compile_options(standalone PUBLIC -DSIMU -DNATIVE_THREADS)
-
-  if(USB_CHARGER)
-    target_compile_options(standalone PUBLIC -DUSB_CHARGER)
-  endif()
-  target_include_directories(standalone PUBLIC ${STB_DIR})
-  target_link_libraries(standalone PRIVATE SDL2::SDL2)
-  add_dependencies(standalone image_assets bm800_bitmaps yaml_data)
-
-  # STB
-  target_include_directories(standalone PUBLIC ${STB_DIR})
-
-  include(FetchImgui)
-  target_link_libraries(standalone PRIVATE imgui)
-endif()

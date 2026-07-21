@@ -36,8 +36,9 @@
 
 // workaround for /radio/src/thirdparty/FatFs/ff.h having f_size as a macro
 // when its not SIMU or SIMU_DISKIO
+#if !defined(SIMU)
 #undef f_size
-
+#endif
 namespace fs = std::filesystem;
 
 using sysclock = std::chrono::system_clock;

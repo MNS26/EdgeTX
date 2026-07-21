@@ -11,29 +11,6 @@
 
 #include "mcp23017_driver.h"
 
-#define MCP23017_ADDR_KEYS      0x20
-#define MCP23017_ADDR_TRIMS     0x21
-#define MCP23017_ADDR_SWITCHES  0x22
-#define I2C_BUS                 "/dev/i2c-1"
-
-static int mcp23017_fd = -1;
-
-static int mcp23017_init_bus()
-{
-  mcp23017_fd = mcp23017_open(I2C_BUS);
-  if (mcp23017_fd < 0) return -1;
-
-  mcp23017_set_dir(mcp23017_fd, MCP23017_ADDR_KEYS, 0xFFFF);
-  mcp23017_set_dir(mcp23017_fd, MCP23017_ADDR_TRIMS, 0xFFFF);
-  mcp23017_set_dir(mcp23017_fd, MCP23017_ADDR_SWITCHES, 0xFFFF);
-
-  mcp23017_set_pullups(mcp23017_fd, MCP23017_ADDR_KEYS, 0xFFFF);
-  mcp23017_set_pullups(mcp23017_fd, MCP23017_ADDR_TRIMS, 0xFFFF);
-  mcp23017_set_pullups(mcp23017_fd, MCP23017_ADDR_SWITCHES, 0xFFFF);
-
-  return 0;
-}
-
 struct hw_switch_def {
   const char*   name;
   SwitchHwType  type;
@@ -44,21 +21,29 @@ struct hw_switch_def {
 #endif
 };
 
-
-
 #include "simu_switches.inc"
 
 int8_t switchesStates[MAX_SWITCHES];
 
-#if defined(RADIO_GX12)
-void _poll_switches() {}
-#endif
+// MCP23017 pin mapping for switches on chip at 0x22
+// Sequential: 3POS uses 2 pins (hi, lo), 2POS uses 1 pin (hi)
+struct sw_pin {
+  uint8_t hi;
+  uint8_t lo;   // 0xFF if 2POS
+};
 
-void simuSetSwitch(uint8_t swtch, int8_t state)
-{
-  assert(swtch < switchGetMaxAllSwitches());
-  switchesStates[swtch] = state;
-}
+static const sw_pin switch_pins[] = {
+  { 0,  1   },  // SA: 3POS
+  { 2,  3   },  // SB: 3POS
+  { 4,  5   },  // SC: 3POS
+  { 6,  7   },  // SD: 3POS
+  { 8,  9   },  // SE: 3POS
+  { 10, 255 },  // SF: 2POS
+  { 11, 12  },  // SG: 3POS
+  { 13, 255 },  // SH: 2POS
+  { 14, 255 },  // SI: 2POS
+  { 15, 255 },  // SJ: 2POS
+};
 
 void boardInitSwitches()
 {
@@ -68,15 +53,67 @@ void boardInitSwitches()
 
 SwitchHwPos boardSwitchGetPosition(uint8_t idx)
 {
-  // TODO: map switch index to MCP23017 address + pin, decode 2POS/3POS
-  // This depends on physical wiring
+  if (idx >= n_switches) return SWITCH_HW_UP;
 
-  if (switchesStates[idx] < 0)
-    return SWITCH_HW_UP;
-  else if (switchesStates[idx] == 0)
-    return SWITCH_HW_MID;
-  else
-    return SWITCH_HW_DOWN;
+  int fd = mcp23017_get_bus_fd();
+  if (fd < 0) {
+    //switchesStates[idx] = (rand()%2)-1;
+    // No hardware: return cached software state (e.g. from simu)
+    switch (switchesStates[idx]) {
+      case -1:
+        return SWITCH_HW_UP;
+      case 0:
+        return SWITCH_HW_MID;
+      case 1:
+        return SWITCH_HW_DOWN;
+      default:
+        return SWITCH_HW_MID;
+    }
+  }
+
+  uint16_t gpio = mcp23017_read_gpio(fd, MCP23017_ADDR_SWITCHES);
+  const sw_pin& p = switch_pins[idx];
+  SwitchHwPos ret = SWITCH_HW_UP;
+
+  if (p.lo == 0xFF) {
+    // 2POS: hi pin HIGH = UP, LOW = DOWN
+    if (!(gpio & (1 << p.hi)))
+      ret = SWITCH_HW_DOWN;
+  } else {
+    // 3POS: decode from hi/lo pin states
+    uint8_t pins_state = (p.lo) | (p.hi<<1);
+    switch (pins_state) {
+      case 0b11: // 1 & 2 high
+        ret = SWITCH_HW_MID;
+        break;
+      case 0b10: // 1 high, 2 low
+        ret = SWITCH_HW_UP;
+        break;
+      case 0b01: // 1 low, 2 high
+        ret = SWITCH_HW_DOWN;
+        break;
+      default:
+        ret = SWITCH_HW_UP;
+        break;
+    }
+
+//    bool hi = gpio & (1 << p.hi);
+//    bool lo = gpio & (1 << p.lo);
+//    if (hi && lo)
+//      ret = SWITCH_HW_MID;
+//    else if (!hi && lo)
+//      ret = SWITCH_HW_DOWN;
+//    // else UP (default)
+  }
+
+//  if (p.inverted) {
+//    if (ret == SWITCH_HW_UP)
+//      ret = SWITCH_HW_DOWN;
+//    else if (ret == SWITCH_HW_DOWN)
+//      ret = SWITCH_HW_UP;
+//  }
+
+  return ret;
 }
 
 const char* boardSwitchGetName(uint8_t idx)

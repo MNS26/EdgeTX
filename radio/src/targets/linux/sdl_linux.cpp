@@ -56,13 +56,12 @@
 #endif
 
 #include "linux.h"
-//#include "simu.h"
 #include "display.h"
 #include "simuaudio.h"
-//#include "simulib.h"
 #include "linux_simulib.h"
 #include "edgetx.h"
 #include "arg_parser.h"
+#include "fs_watcher.h"
 
 #if defined(ROTARY_ENCODER_NAVIGATION)
 static uint32_t last_encoder_tick;
@@ -85,7 +84,7 @@ static const unsigned char _icon_png[] = {
 static bool app_running = false;
 
 
-
+#if false
 static bool handleKeyEvent(const SDL_Event& event)
 {
   if (event.type != SDL_KEYDOWN && event.type != SDL_KEYUP)
@@ -221,13 +220,13 @@ static bool handleKeyEvent(const SDL_Event& event)
 
   return key_handled;
 }
-
+#endif
 static void redraw();
 
 static bool handleEvents() {
   SDL_Event event;
   while (SDL_PollEvent(&event)) {
-    if (handleKeyEvent(event)) continue;
+//    if (handleKeyEvent(event)) continue;
 #if defined(HARDWARE_TOUCH)
     if (event.type == SDL_MOUSEBUTTONDOWN ||
         event.type == SDL_MOUSEMOTION) {
@@ -345,6 +344,7 @@ int main(int argc, char* argv[])
   linuxInit();
   fatfsSetPath(args.getStoragePath().c_str(),
                args.getSettingsPath().c_str());
+  fsWatcherInit(args.getStoragePath().c_str());
   linuxStart();
 
   // Main Loop
@@ -386,38 +386,40 @@ int main(int argc, char* argv[])
 // WASM imports required by simu driver stubs
 // TODO: point to real hardware
 // or to linux devices (device tree)
-uint16_t simuGetAnalog(uint8_t idx)
-{
-  auto max_sticks = adcGetMaxInputs(ADC_INPUT_MAIN);
-  if (idx < max_sticks) {
-    // Return center position for all gimbal axes
-    switch (idx){
-      case 0:return 2048; // CH1 (Roll)
-      case 1:return 2048; // CH2 (Pitch)
-      case 2:return 0;    // CH3 (Throttle)
-      case 3:return 2048; // CH4 (Yaw)
-    }
-  }
+//uint16_t simuGetAnalog(uint8_t idx)
+//{
+//  return 4096;
+//  auto max_sticks = adcGetMaxInputs(ADC_INPUT_MAIN);
+//  if (idx < max_sticks) {
+//    // Return center position for all gimbal axes
+//    switch (idx){
+//      case 0:return 2048; // CH1 (Roll)
+//      case 1:return 2048; // CH2 (Pitch)
+//      case 2:return 0;    // CH3 (Throttle)
+//      case 3:return 2048; // CH4 (Yaw)
+//    }
+//  }
+//
+//  idx -= max_sticks;
+//
+//  auto max_pots = adcGetMaxInputs(ADC_INPUT_FLEX);
+//  if (idx < max_pots) {
+//    // Return center position for all pots/sliders
+//    switch (getPotType(idx)){
+//      case FLEX_POT:
+//      case FLEX_POT_CENTER:
+//      case FLEX_SLIDER:
+//        return 2048;
+//      case FLEX_MULTIPOS:
+//        return 4096/3; 
+//    }
+//  }
+//  return 0;
+//}
 
-  idx -= max_sticks;
-
-  auto max_pots = adcGetMaxInputs(ADC_INPUT_FLEX);
-  if (idx < max_pots) {
-    // Return center position for all pots/sliders
-    switch (getPotType(idx)){
-      case FLEX_POT:
-      case FLEX_POT_CENTER:
-      case FLEX_SLIDER:
-        return 2048;
-      case FLEX_MULTIPOS:
-        return 4096/3; 
-    }
-  }
-  return 0;
-}
-uint16_t simuGetKey(uint8_t idx) {
-  return 0;
-}
+//uint16_t simuGetKey(uint8_t idx) {
+//  return 1;
+//}
 
 
 void simuTrace(const char* text) {}

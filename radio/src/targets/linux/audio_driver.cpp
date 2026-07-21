@@ -23,18 +23,18 @@
 #include "linux_simulib.h"
 
 #if !defined(SOFTWARE_VOLUME)
-static int _simu_volume = 0;
+static int volume = 0;
 
-void audioSetVolume(uint8_t volume)
+void audioSetVolume(uint8_t _volume)
 {
-  _simu_volume = volume;
+  volume = _volume;
 }
 #endif
 
-int simuAudioGetVolume()
+int AudioGetVolume()
 {
 #if !defined(SOFTWARE_VOLUME)
-  return _simu_volume;
+  return volume;
 #else
   return VOLUME_LEVEL_MAX;
 #endif
@@ -48,7 +48,7 @@ void audioConsumeCurrentBuffer()
     if (!nextBuffer) return;
 
 #if !defined(SOFTWARE_VOLUME)
-    int volume = simuAudioGetVolume();
+    int volume = AudioGetVolume();
     if (volume < VOLUME_LEVEL_MAX) {
       auto* buf = const_cast<AudioBuffer*>(nextBuffer);
       for (uint16_t i = 0; i < buf->size; ++i) {
@@ -60,7 +60,11 @@ void audioConsumeCurrentBuffer()
 
     auto data = (const uint8_t*)nextBuffer->data;
     uint32_t len = nextBuffer->size * sizeof(audio_data_t);
-    simuQueueAudio(data, len);
+    QueueAudio(data, len);
     fifo.freeNextFilledBuffer();
   }
 }
+
+bool simuAudioInit() { return AudioInit(); }
+void simuAudioDeInit() { AudioDeInit(); }
+int simuAudioGetVolume() { return AudioGetVolume(); }

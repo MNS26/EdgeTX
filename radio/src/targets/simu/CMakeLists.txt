@@ -53,7 +53,15 @@ set(SIMU_DRIVERS ${SIMU_DRIVERS}
 
 include_directories(${CMAKE_CURRENT_BINARY_DIR})
 
-# Pack all simu driver sources into an object lib
+# use linux backlight driver instead of the default simu one if we are building linux simu target
+# since we dont need backlight control as a window
+if(PCB STREQUAL "LINUX")
+  list(REMOVE_ITEM SIMU_DRIVERS backlight_driver.cpp)
+  set(SIMU_DRIVERS ${SIMU_DRIVERS}
+    ../linux/backlight_driver.cpp
+  )
+endif()
+
 add_library(simu_drivers OBJECT EXCLUDE_FROM_ALL
   ${SIMU_DRIVERS}
 )

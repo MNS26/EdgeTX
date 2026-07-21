@@ -9,9 +9,11 @@
 
 #include "board_common.h"
 #include "hal.h"
-
 #include "hal/serial_port.h"
 #include "hal/watchdog_driver.h"
+
+
+
 
 #if defined(HARDWARE_TOUCH)
 struct TouchState touchPanelRead();
@@ -39,6 +41,7 @@ extern HardwareOptions hardwareOptions;
 #define NUM_TRIMS                               6
 #define NUM_TRIMS_KEYS                          (NUM_TRIMS * 2)
 
+#define VOLUME_LEVEL_MAX 23
 // Battery driver (6S LiPo defaults)
 #define BATTERY_WARN      222
 #define BATTERY_MIN       210

@@ -15,6 +15,29 @@
 #define MCP23017_OLATA  0x14
 #define MCP23017_OLATB  0x15
 
+static int mcp23017_bus_fd = -1;
+
+int mcp23017_init_bus()
+{
+  mcp23017_bus_fd = mcp23017_open(MCP23017_I2C_BUS);
+  if (mcp23017_bus_fd < 0) return -1;
+
+  mcp23017_set_dir(mcp23017_bus_fd, MCP23017_ADDR_KEYS, 0xFFFF);
+  mcp23017_set_dir(mcp23017_bus_fd, MCP23017_ADDR_TRIMS, 0xFFFF);
+  mcp23017_set_dir(mcp23017_bus_fd, MCP23017_ADDR_SWITCHES, 0xFFFF);
+
+  mcp23017_set_pullups(mcp23017_bus_fd, MCP23017_ADDR_KEYS, 0xFFFF);
+  mcp23017_set_pullups(mcp23017_bus_fd, MCP23017_ADDR_TRIMS, 0xFFFF);
+  mcp23017_set_pullups(mcp23017_bus_fd, MCP23017_ADDR_SWITCHES, 0xFFFF);
+
+  return 0;
+}
+
+int mcp23017_get_bus_fd()
+{
+  return mcp23017_bus_fd;
+}
+
 static int write_reg(int fd, uint8_t addr, uint8_t reg, uint8_t val)
 {
   if (ioctl(fd, I2C_SLAVE, addr) < 0) return -1;

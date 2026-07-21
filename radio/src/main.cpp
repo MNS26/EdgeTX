@@ -45,6 +45,10 @@
 #include "lua/lua_event.h"
 #endif
 
+#if defined(RADIO_LINUX) && !defined(SIMU)
+#include "fs_watcher.h"
+#endif
+
 #if defined(AUDIO)
 uint8_t currentSpeakerVolume = 255;
 uint8_t requiredSpeakerVolume = 255;
@@ -524,7 +528,13 @@ void perMain()
 
   if (!usbPlugged() || (getSelectedUsbMode() == USB_UNSELECTED_MODE)) {
     checkStorageUpdate();
-    initLoggingTimer();  // initialize software timer for logging
+    initLoggingTimer();
+#if defined(RADIO_LINUX) && !defined(SIMU)
+    if (fsWatcherCheck()) {
+      storageReadAll();
+      referenceSystemAudioFiles();
+    }
+#endif
   }
 
   handleUsbConnection();
